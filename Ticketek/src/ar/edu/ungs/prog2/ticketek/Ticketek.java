@@ -2,7 +2,16 @@ package ar.edu.ungs.prog2.ticketek;
 
 import java.util.List;
 
+
 public class Ticketek implements ITicketek {
+
+    private Map<String, Usuario> usuarios = new HashMap<>();
+    private Map<String, Sede> sedes = new HashMap<>();
+    private Map<String, Espectaculo> espectaculos = new HashMap<>();
+    private Map<String, Double> recaudacionGlobal = new HashMap<>();
+    private Map<String, Map<String, Double>> recaudacionPorSede = new HashMap<>();
+    private int contadorCodigoEntrada = 0;
+    
 
 	@Override
 	public void registrarSede(String nombre, String direccion, int capacidadMaxima) {
