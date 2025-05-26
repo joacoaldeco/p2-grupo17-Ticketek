@@ -10,7 +10,7 @@ public class Funcion {
     private double precioBase;
     // ArrayList que almacena todas las entradas vendidas para la función.
     private ArrayList<Entrada> entradasVendidas;
-    
+
     public Funcion(Sede sede, Date fecha, double precioBase) {
         if (sede == null) {
             throw new IllegalArgumentException("Sede inválida.");
@@ -26,22 +26,22 @@ public class Funcion {
         this.precioBase = precioBase;
         this.entradasVendidas = new ArrayList<>();
     }
-    
+
     /**
      * Verifica que los asientos solicitados en un sector estén disponibles.
      * Se delega la verificación a la Sede.
-     * 
+     *
      * @param sector Nombre del sector.
      * @param asientos Lista de números de asientos a verificar.
-     * @return true si los asientos están disponibles; false en caso contrario.
+     * @return true si los asientos están disponibles; false de lo contrario.
      */
     public boolean verificarDisponibilidad(String sector, ArrayList<Integer> asientos) {
         return sede.verificarDisponibilidad(sector, asientos);
     }
-    
+
     /**
      * Registra una entrada vendida para la función.
-     * 
+     *
      * @param entrada La entrada a registrar.
      */
     public void registrarEntrada(Entrada entrada) {
@@ -50,11 +50,11 @@ public class Funcion {
         }
         entradasVendidas.add(entrada);
     }
-    
+
     /**
      * Calcula el precio final de una entrada para un determinado sector.
-     * Se utiliza el precio base de la función y se le suma un porcentaje adicional definido por el sector.
-     * 
+     * Se utiliza el precio base de la función y se le suma el porcentaje adicional definido por el sector.
+     *
      * @param sector El objeto Sector que contiene el porcentaje a aplicar.
      * @return El precio final de la entrada.
      */
@@ -64,11 +64,11 @@ public class Funcion {
         }
         return precioBase * (1 + sector.getPorcentajeAdicional() / 100.0);
     }
-    
+
     /**
      * Libera la ubicación asignada en el sector especificado.
      * Se delega la acción a la Sede.
-     * 
+     *
      * @param sector El Sector en el que se liberará la ubicación.
      */
     public void liberarUbicacion(Sector sector) {
@@ -77,26 +77,49 @@ public class Funcion {
         }
         sede.liberarUbicacion(sector);
     }
-    
+
     /**
      * Devuelve una copia de la lista de entradas vendidas.
-     * 
+     *
      * @return Un ArrayList de Entrada con las entradas registradas.
      */
     public ArrayList<Entrada> obtenerEntradasVendidas() {
         return new ArrayList<>(entradasVendidas);
     }
-    
-    // Getters
+
+    // Getters existentes
     public Sede getSede() {
         return sede;
     }
-    
+
     public Date getFecha() {
         return fecha;
     }
-    
+
     public double getPrecioBase() {
         return precioBase;
+    }
+    
+    /**
+     * Devuelve el nombre de la sede asociada a esta función.
+     *
+     * @return El nombre de la sede.
+     */
+    public String getNombreSede() {
+        return sede.getNombre();
+    }
+    
+    /**
+     * Calcula la recaudación total de la función.
+     * Suma el precio final de cada entrada vendida.
+     *
+     * @return La recaudación total de la función.
+     */
+    public double calcularRecaudacion() {
+        double total = 0.0;
+        for (Entrada e : entradasVendidas) {
+            total += e.obtenerPrecioFinal(); // Se asume que Entrada tiene el método obtenerPrecioFinal()
+        }
+        return total;
     }
 }

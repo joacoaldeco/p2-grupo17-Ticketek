@@ -7,7 +7,6 @@ import java.util.Map;
 public class Espectaculo {
     
     private String nombre;
-    // Diccionario que asocia una fecha a una función.
     private Map<Date, Funcion> funciones;
     
     public Espectaculo(String nombre) {
@@ -83,9 +82,9 @@ public class Espectaculo {
      * @param precioBase Precio base de la función.
      * @throws IllegalArgumentException si algún parámetro es inválido o hay conflicto de funciones.
      */
-    public void agregarFuncion(String nombreSede, Date fecha, Double precioBase) {
-        if (nombreSede == null || nombreSede.isBlank()) {
-            throw new IllegalArgumentException("Nombre de sede inválido.");
+    public void agregarFuncion(Sede sede, Date fecha, Double precioBase) {
+        if (sede == null) {
+            throw new IllegalArgumentException("Sede inválida.");
         }
         if (fecha == null) {
             throw new IllegalArgumentException("La fecha no puede ser nula.");
@@ -97,14 +96,10 @@ public class Espectaculo {
         if (funciones.containsKey(fecha)) {
             throw new IllegalArgumentException("Ya existe una función en esa fecha.");
         }
-        
-        // Verificar que no exista ya una función en esa sede.
-        if (contieneSede(nombreSede)) {
-            throw new IllegalArgumentException("Ya existe una función en la sede: " + nombreSede);
-        }
-        
-        // Crear y agregar la nueva función.
-        Funcion nuevaFuncion = new Funcion(nombreSede, fecha, precioBase);
+        // Aquí, por coherencia, podrías también verificar que no exista una función para esa sede
+        // utilizando otro mecanismo, si es necesario.
+        // Crear y agregar la nueva función usando el objeto de la sede.
+        Funcion nuevaFuncion = new Funcion(sede, fecha, precioBase);
         funciones.put(fecha, nuevaFuncion);
     }
     
