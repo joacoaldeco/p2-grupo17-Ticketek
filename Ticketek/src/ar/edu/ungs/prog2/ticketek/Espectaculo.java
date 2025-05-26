@@ -17,13 +17,6 @@ public class Espectaculo {
         this.funciones = new HashMap<>();
     }
     
-    /**
-     * Recorre todas las funciones y retorna aquella cuya sede coincide
-     * con el parámetro especificado.
-     * 
-     * @param nombreSede Nombre de la sede a buscar.
-     * @return La función asociada a esa sede, o null si no se encuentra.
-     */
     public Funcion obtenerFuncionPorSede(String nombreSede) {
         for (Funcion f : funciones.values()) {
             if (f.getNombreSede().equals(nombreSede)) {
@@ -33,23 +26,10 @@ public class Espectaculo {
         return null;
     }
     
-    /**
-     * Indica si el espectáculo contiene alguna función en la sede cuyo nombre se pasa como parámetro.
-     * 
-     * @param nombreSede Nombre de la sede.
-     * @return true si existe una función en esa sede, false en caso contrario.
-     */
     public boolean contieneSede(String nombreSede) {
         return obtenerFuncionPorSede(nombreSede) != null;
     }
     
-    /**
-     * Obtiene el precio base de la función asociada a la sede indicada.
-     * 
-     * @param nombreSede Nombre de la sede.
-     * @return El precio base de la función.
-     * @throws IllegalArgumentException si no existe función en esa sede.
-     */
     public Double obtenerPrecioBase(String nombreSede) {
         Funcion f = obtenerFuncionPorSede(nombreSede);
         if (f == null) {
@@ -58,11 +38,7 @@ public class Espectaculo {
         return f.getPrecioBase();
     }
     
-    /**
-     * Calcula la recaudación total del espectáculo sumando la recaudación de cada función registrada.
-     * 
-     * @return La recaudación total.
-     */
+
     public Double calcularRecaudacionTotal() {
         double total = 0.0;
         for (Funcion f : funciones.values()) {
@@ -71,17 +47,7 @@ public class Espectaculo {
         return total;
     }
     
-    /**
-     * Agrega una nueva función al espectáculo. Se verifica que:
-     * - Los parámetros no sean nulos y el precio base sea mayor que cero.
-     * - No exista ya una función para la fecha indicada.
-     * - No exista ya una función en la misma sede.
-     * 
-     * @param nombreSede Nombre de la sede donde se realizará la función.
-     * @param fecha Fecha de la función.
-     * @param precioBase Precio base de la función.
-     * @throws IllegalArgumentException si algún parámetro es inválido o hay conflicto de funciones.
-     */
+
     public void agregarFuncion(Sede sede, Date fecha, Double precioBase) {
         if (sede == null) {
             throw new IllegalArgumentException("Sede inválida.");
@@ -92,18 +58,14 @@ public class Espectaculo {
         if (precioBase == null || precioBase <= 0) {
             throw new IllegalArgumentException("Precio base inválido.");
         }
-        // Verificar que no exista ya una función para esa fecha.
         if (funciones.containsKey(fecha)) {
             throw new IllegalArgumentException("Ya existe una función en esa fecha.");
         }
-        // Aquí, por coherencia, podrías también verificar que no exista una función para esa sede
-        // utilizando otro mecanismo, si es necesario.
-        // Crear y agregar la nueva función usando el objeto de la sede.
         Funcion nuevaFuncion = new Funcion(sede, fecha, precioBase);
         funciones.put(fecha, nuevaFuncion);
     }
     
-    // Getters
+
     public String getNombre() {
         return nombre;
     }

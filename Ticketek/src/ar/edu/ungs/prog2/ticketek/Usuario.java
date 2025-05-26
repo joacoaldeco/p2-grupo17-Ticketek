@@ -11,10 +11,8 @@ public class Usuario {
     private String nombre;
     private String apellido;
     private String contrasenia;
-    // Diccionario donde se almacenan las entradas compradas: clave = código de entrada, valor = objeto Entrada.
     private Map<Integer, Entrada> entradas;
 
-    // Constructor con validaciones básicas.
     public Usuario(String email, String nombre, String apellido, String contrasenia) {
         if(email == null || email.trim().isEmpty())
             throw new IllegalArgumentException("El email no puede ser nulo o vacío.");
@@ -32,7 +30,6 @@ public class Usuario {
         this.entradas = new HashMap<>();
     }
     
-    // Métodos getters
     public String getEmail() {
         return email;
     }
@@ -53,11 +50,6 @@ public class Usuario {
         return entradas;
     }
     
-    /**
-     * Agrega una entrada al diccionario de entradas.
-     * @param codigoEntrada El código único de la entrada.
-     * @param entrada La entrada a agregar.
-     */
     public void agregarEntrada(Integer codigoEntrada, Entrada entrada) {
         if(codigoEntrada == null)
             throw new IllegalArgumentException("El código de entrada no puede ser nulo.");
@@ -68,11 +60,6 @@ public class Usuario {
         entradas.put(codigoEntrada, entrada);
     }
     
-    /**
-     * Retorna un ArrayList con todas las entradas cuya fecha sea posterior a la fecha actual.
-     * Se asume que la clase Entrada tiene el método obtenerFecha() que devuelve un LocalDate.
-     * @return ArrayList de entradas futuras.
-     */
     public ArrayList<Entrada> listarEntradasFuturas() {
         ArrayList<Entrada> entradasFuturas = new ArrayList<>();
         LocalDate hoy = LocalDate.now();
@@ -84,21 +71,10 @@ public class Usuario {
         return entradasFuturas;
     }
     
-    /**
-     * Retorna un ArrayList con todas las entradas registradas.
-     * @return ArrayList de todas las entradas.
-     */
     public ArrayList<Entrada> listarEntradas() {
         return new ArrayList<>(entradas.values());
     }
     
-    /**
-     * Cancela (anula) una entrada cuyo código sea el indicado,
-     * siempre y cuando la contraseña ingresada sea correcta.
-     * Opcionalmente, se puede verificar que la fecha de la función no haya pasado.
-     * @param codigoEntrada El código de la entrada a anular.
-     * @param contrasena La contraseña para autenticar al usuario.
-     */
     public void anularEntrada(Integer codigoEntrada, String contrasena) {
         if (!this.contrasenia.equals(contrasena))
             throw new IllegalArgumentException("Contraseña incorrecta.");
@@ -114,14 +90,6 @@ public class Usuario {
         entradas.remove(codigoEntrada);
     }
     
-    /**
-     * Verifica y retorna la ubicación de la entrada cuyo código se indica,
-     * luego de autenticar usando la contraseña del usuario.
-     * Se asume que la clase Entrada tiene el método getUbicacion() que retorna un String.
-     * @param codigoEntrada El código de la entrada.
-     * @param contrasena La contraseña para autenticar al usuario.
-     * @return Un String que describe la ubicación asignada a la entrada.
-     */
     public String verificarUbicacionEntrada(Integer codigoEntrada, String contrasena) {
         if (!this.contrasenia.equals(contrasena))
             throw new IllegalArgumentException("Contraseña incorrecta.");
