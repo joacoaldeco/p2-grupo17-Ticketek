@@ -75,14 +75,10 @@ public class Funcion {
         return sede.getNombre();
     }
     
-    /**
-     * Calcula la recaudación total de la función.
-     * Suma el precio final de cada entrada vendida.
-     */
     public double calcularRecaudacion() {
         double total = 0.0;
         for (Entrada e : entradasVendidas) {
-            total += e.obtenerPrecioFinal(); // Se asume que Entrada tiene el método obtenerPrecioFinal()
+            total += e.obtenerPrecioFinal();
         }
         return total;
     }

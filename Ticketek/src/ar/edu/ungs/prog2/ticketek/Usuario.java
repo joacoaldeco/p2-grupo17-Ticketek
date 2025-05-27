@@ -1,9 +1,11 @@
 package ar.edu.ungs.prog2.ticketek;
 
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Date;
 
 public class Usuario {
 
@@ -64,8 +66,15 @@ public class Usuario {
         ArrayList<Entrada> entradasFuturas = new ArrayList<>();
         LocalDate hoy = LocalDate.now();
         for (Entrada entrada : entradas.values()) {
-            if (entrada.obtenerFecha() != null && hoy.isBefore(entrada.obtenerFecha())) {
-                entradasFuturas.add(entrada);
+            // Convertir la fecha de la entrada (Date) a LocalDate
+            Date fechaDate = entrada.obtenerFecha();
+            if (fechaDate != null) {
+                LocalDate fechaEntrada = fechaDate.toInstant()
+                        .atZone(ZoneId.systemDefault())
+                        .toLocalDate();
+                if (hoy.isBefore(fechaEntrada)) {
+                    entradasFuturas.add(entrada);
+                }
             }
         }
         return entradasFuturas;
@@ -83,9 +92,15 @@ public class Usuario {
         
         Entrada entrada = entradas.get(codigoEntrada);
         LocalDate hoy = LocalDate.now();
-        // Se asume que no se pueden anular entradas cuyo evento ya haya ocurrido.
-        if (entrada.obtenerFecha() != null && !hoy.isBefore(entrada.obtenerFecha()))
-            throw new IllegalArgumentException("La entrada ya venció y no se puede anular.");
+        Date fechaDate = entrada.obtenerFecha();
+        if(fechaDate != null) {
+            LocalDate fechaEntrada = fechaDate.toInstant()
+                    .atZone(ZoneId.systemDefault())
+                    .toLocalDate();
+            // Se asume que no se pueden anular entradas cuyo evento ya haya ocurrido.
+            if (!hoy.isBefore(fechaEntrada))
+                throw new IllegalArgumentException("La entrada ya venció y no se puede anular.");
+        }
         
         entradas.remove(codigoEntrada);
     }
@@ -97,6 +112,6 @@ public class Usuario {
             throw new IllegalArgumentException("No existe una entrada con el código proporcionado.");
         
         Entrada entrada = entradas.get(codigoEntrada);
-        return entrada.getUbicacion();
+        return entrada.ubicacion();
     }
 }
