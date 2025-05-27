@@ -34,4 +34,12 @@ public interface IEntrada {
 	 * @return
 	 */
 	String toString();
+
+    double obtenerPrecioFinal();
+
+    Funcion getFuncion();
+
+	Espectaculo getEspectaculo();
+
+    Integer getCodigoEntrada();
 }

@@ -1,13 +1,13 @@
 package ar.edu.ungs.prog2.ticketek;
 
-import java.util.Date;
+import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
 
 public class Espectaculo {
     
     private String nombre;
-    private Map<Date, Funcion> funciones;
+    private Map<LocalDate, Funcion> funciones;
     
     public Espectaculo(String nombre) {
         if (nombre == null || nombre.isBlank()) {
@@ -35,7 +35,7 @@ public class Espectaculo {
         if (f == null) {
             throw new IllegalArgumentException("No existe función en la sede: " + nombreSede);
         }
-        return f.getPrecioBase();
+        return f.calcularPrecioEntrada();
     }
     
 
@@ -48,7 +48,7 @@ public class Espectaculo {
     }
     
 
-    public void agregarFuncion(Sede sede, Date fecha, Double precioBase) {
+    public void agregarFuncion(Sede sede, LocalDate fecha, Double precioBase) {
         if (sede == null) {
             throw new IllegalArgumentException("Sede inválida.");
         }
@@ -70,7 +70,7 @@ public class Espectaculo {
         return nombre;
     }
     
-    public Map<Date, Funcion> getFunciones() {
+    public Map<LocalDate, Funcion> getFunciones() {
         return funciones;
     }
 }

@@ -8,13 +8,11 @@ public class Teatro extends Sede {
 
     private int asientosPorFila;
     private Map<String, Sector> sectoresTeatro;
-    // Nuevo: mapa para llevar el registro de reservas por sector (clave: nombre del sector,
-    // valor: lista de números de asiento reservados).
+    private Map<String, Integer> capacidadPorSector;
     private Map<String, ArrayList<Integer>> reservas;
 
-
     public Teatro(String nombre, String direccion, int capacidadMaxima, int asientosPorFila,
-                  String[] sectores, int[] capacidadPorSector, int[] porcentajeAdicional) {
+            String[] sectores, int[] capacidadPorSector, int[] porcentajeAdicional) {
         super(nombre, direccion, capacidadMaxima);
         if (asientosPorFila <= 0)
             throw new IllegalArgumentException("Asientos por fila inválido.");
@@ -27,7 +25,6 @@ public class Teatro extends Sede {
         this.sectoresTeatro = new HashMap<>();
         this.reservas = new HashMap<>();
 
-        // Crear cada sector y agregarlo tanto al mapa interno como a la lista de sectores de la Sede.
         for (int i = 0; i < sectores.length; i++) {
             Sector s = new Sector(sectores[i], capacidadPorSector[i], porcentajeAdicional[i]);
             sectoresTeatro.put(sectores[i], s);
@@ -91,7 +88,34 @@ public class Teatro extends Sede {
         if (!reservas.containsKey(nombreSector)) {
             throw new IllegalArgumentException("El sector no existe en este teatro.");
         }
-        // Se libera (se borra) el registro de asientos reservados para el sector.
         reservas.put(nombreSector, new ArrayList<Integer>());
+    }
+
+    public int getCapacidadPorSector(String nombreSector) {
+        return capacidadPorSector.get(nombreSector);
+    }
+
+    @Override
+    public boolean sectorExiste(String nombreSector) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'sectorExiste'");
+    }
+
+    @Override
+    public Sector getSector(String nombreSector) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'getSector'");
+    }
+
+    @Override
+    public boolean asientosDisponibles(String sector, int[] asientos) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'asientosDisponibles'");
+    }
+
+    @Override
+    public void asignarAsiento(String sector, int asiento) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'asignarAsiento'");
     }
 }

@@ -1,20 +1,20 @@
 package ar.edu.ungs.prog2.ticketek;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Date;
 
 public class Funcion {
 
     private Sede sede;
-    private Date fecha;
+    private LocalDate fecha;
     private double precioBase;
     private ArrayList<Entrada> entradasVendidas;
 
-    public Funcion(Sede sede, Date fecha, double precioBase) {
+    public Funcion(Sede sede, LocalDate fecha, double precioBase) {
         if (sede == null) {
             throw new IllegalArgumentException("Sede inválida.");
         }
-        if (fecha == null || fecha.before(new Date())) {
+        if (fecha == null || fecha.isBefore(LocalDate.now())) {
             throw new IllegalArgumentException("Fecha inválida.");
         }
         if (precioBase <= 0) {
@@ -37,7 +37,6 @@ public class Funcion {
         entradasVendidas.add(entrada);
     }
 
-
     public double calcularPrecioEntrada(Sector sector) {
         if (sector == null) {
             throw new IllegalArgumentException("El sector no puede ser nulo.");
@@ -45,14 +44,12 @@ public class Funcion {
         return precioBase * (1 + sector.getPorcentajeAdicional() / 100.0);
     }
 
-
     public void liberarUbicacion(Sector sector) {
         if (sector == null) {
             throw new IllegalArgumentException("El sector no puede ser nulo.");
         }
         sede.liberarUbicacion(sector);
     }
-
 
     public ArrayList<Entrada> obtenerEntradasVendidas() {
         return new ArrayList<>(entradasVendidas);
@@ -62,24 +59,38 @@ public class Funcion {
         return sede;
     }
 
-    public Date getFecha() {
+    public LocalDate getFecha() {
         return fecha;
     }
 
-    public double getPrecioBase() {
+    public double calcularPrecioEntrada() {
         return precioBase;
     }
-    
-//Devuelve el nombre de la sede asociada a esta función
+
     public String getNombreSede() {
         return sede.getNombre();
     }
-    
+
     public double calcularRecaudacion() {
         double total = 0.0;
         for (Entrada e : entradasVendidas) {
             total += e.obtenerPrecioFinal();
         }
         return total;
+    }
+
+    public void agregarEntradaVendida(Entrada entrada) {
+        if (entrada == null)
+            throw new IllegalArgumentException("La entrada no puede ser nula.");
+        entradasVendidas.add(entrada);
+    }
+
+    public double calcularPrecioEntrada(String nombreSector) {
+        Sector sector = sede.getSector(nombreSector);
+        return calcularPrecioEntrada(sector);
+    }
+
+    public void eliminarEntrada(IEntrada entrada) {
+        entradasVendidas.remove(entrada);
     }
 }

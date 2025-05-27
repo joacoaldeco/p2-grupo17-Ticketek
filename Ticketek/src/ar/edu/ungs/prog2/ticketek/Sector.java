@@ -8,8 +8,8 @@ public class Sector {
     private String tipo;
     private double porcentajeAdicional;
 
-
-    public Sector(int numeroAsiento, int numeroFila, String ubicacion, boolean ocupado, String tipo, double porcentajeAdicional) {
+    public Sector(int numeroAsiento, int numeroFila, String ubicacion, boolean ocupado, String tipo,
+            double porcentajeAdicional) {
         if (numeroAsiento <= 0)
             throw new IllegalArgumentException("Número de asiento inválido.");
         if (numeroFila <= 0)
@@ -20,7 +20,7 @@ public class Sector {
             throw new IllegalArgumentException("Tipo inválido.");
         if (porcentajeAdicional < 0)
             throw new IllegalArgumentException("El porcentaje de incremento no puede ser negativo.");
-        
+
         this.numeroAsiento = numeroAsiento;
         this.numeroFila = numeroFila;
         this.ubicacion = ubicacion;
@@ -29,9 +29,7 @@ public class Sector {
         this.porcentajeAdicional = porcentajeAdicional;
     }
 
-
     public Sector(String nombre, int capacidad, double porcentajeAdicional) {
-        // En este constructor, se usan valores por defecto para los parámetros que no se reciben.
         this(1, 1, nombre, false, "General", porcentajeAdicional);
     }
 
@@ -58,12 +56,10 @@ public class Sector {
     public double getPorcentajeAdicional() {
         return porcentajeAdicional;
     }
-    
 
     public String getNombre() {
         return this.ubicacion;
     }
-
 
     public double calcularPrecioAdicional(Double precioBase) {
         if (precioBase == null || precioBase < 0) {
@@ -80,8 +76,8 @@ public class Sector {
             return false;
         Sector other = (Sector) obj;
         return this.numeroAsiento == other.numeroAsiento &&
-               this.numeroFila == other.numeroFila &&
-               this.ubicacion.equals(other.ubicacion);
+                this.numeroFila == other.numeroFila &&
+                this.ubicacion.equals(other.ubicacion);
     }
 
     @Override

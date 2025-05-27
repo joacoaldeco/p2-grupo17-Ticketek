@@ -1,6 +1,6 @@
 package ar.edu.ungs.prog2.ticketek;
 
-import java.util.Date;
+import java.time.LocalDate;
 
 public class Entrada implements IEntrada {
 
@@ -60,7 +60,7 @@ public class Entrada implements IEntrada {
         return espectaculo.getNombre();
     }
 
-    public Date obtenerFecha() {
+    public LocalDate obtenerFecha() {
         return funcion.getFecha();
     }
 

@@ -52,7 +52,6 @@ public abstract class Sede {
         return sectores;
     }
 
-
     public void agregarSector(Sector sector) {
         if (sector == null) {
             throw new IllegalArgumentException("Sector nulo");
@@ -63,9 +62,15 @@ public abstract class Sede {
         sectores.add(sector);
     }
 
-
     public abstract boolean verificarDisponibilidad(String sector, ArrayList<Integer> asientos);
 
-
     public abstract void liberarUbicacion(Sector sector);
+
+    public abstract boolean sectorExiste(String nombreSector);
+
+    public abstract Sector getSector(String nombreSector);
+
+    public abstract boolean asientosDisponibles(String sector, int[] asientos);
+
+    public abstract void asignarAsiento(String sector, int asiento);
 }
