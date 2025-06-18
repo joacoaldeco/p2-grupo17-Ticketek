@@ -21,6 +21,7 @@ public class Teatro extends Sede {
         if (sectores.length != capacidadPorSector.length || sectores.length != porcentajeAdicional.length)
             throw new IllegalArgumentException("Datos de sectores inválidos.");
 
+        this.capacidadPorSector = new HashMap<>();
         this.asientosPorFila = asientosPorFila;
         this.sectoresTeatro = new HashMap<>();
         this.reservas = new HashMap<>();
@@ -28,16 +29,14 @@ public class Teatro extends Sede {
         for (int i = 0; i < sectores.length; i++) {
             Sector s = new Sector(sectores[i], capacidadPorSector[i], porcentajeAdicional[i]);
             sectoresTeatro.put(sectores[i], s);
+            this.capacidadPorSector.put(sectores[i], capacidadPorSector[i]); // FIX: Agregar capacidad al mapa
             this.agregarSector(s);
             reservas.put(sectores[i], new ArrayList<Integer>());
         }
     }
 
     @Override
-    public double calcularPrecioEntrada(Double precioBase, Sector sector) {
-        if (!esSectorValido(sector)) {
-            throw new IllegalArgumentException("Sector inválido para este teatro.");
-        }
+    public double calcularPrecioEntrada(double precioBase, Sector sector) {
         return precioBase * (1 + sector.getPorcentajeAdicional() / 100.0);
     }
 
@@ -103,7 +102,7 @@ public class Teatro extends Sede {
 
         for (int i = 0; i < sectoresArray.length; i++) {
             Sector sector = sectoresTeatro.get(sectoresArray[i]);
-            capacidadArray[i] = capacidadPorSector.get(sectoresArray[i]);
+            capacidadArray[i] = capacidadPorSector.get(sectoresArray[i]); // Ahora no será null
             porcentajeArray[i] = (int) sector.getPorcentajeAdicional();
         }
 

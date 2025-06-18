@@ -5,4 +5,5 @@
  * 
  */
 module Ticketek {
+	requires junit;
 }

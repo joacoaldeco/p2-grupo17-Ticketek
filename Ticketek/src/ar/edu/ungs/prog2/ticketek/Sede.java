@@ -25,12 +25,7 @@ public abstract class Sede {
         this.sectores = new ArrayList<>();
     }
 
-    public double calcularPrecioEntrada(Double precioBase, Sector sector) {
-        if (!esSectorValido(sector)) {
-            throw new IllegalArgumentException("Sector no válido en esta sede.");
-        }
-        return precioBase * (1 + sector.getPorcentajeAdicional() / 100.0);
-    }
+    public abstract double calcularPrecioEntrada(double precioBase, Sector sector);
 
     public boolean esSectorValido(Sector sector) {
         return sector != null && sectores.contains(sector);

@@ -144,6 +144,7 @@ public class Ticketek implements ITicketek {
 					esp.getNombre(),
 					fechaFuncion,
 					sectorGeneral,
+					sedeFuncion.getNombre(),
 					precio);
 
 			funcion.agregarEntradaVendida(entrada);
@@ -204,15 +205,16 @@ public class Ticketek implements ITicketek {
 		for (int asiento : asientos) {
 			contadorCodigoEntrada++;
 
-			double precio = funcion.calcularPrecioEntrada(sector);
-
 			Sector sectorElegido = sedeFuncion.getSector(sector);
+
+			double precio = sedeFuncion.calcularPrecioEntrada(funcion.calcularPrecioEntrada(), sectorElegido);
 
 			Entrada entrada = new Entrada(
 					contadorCodigoEntrada,
 					esp.getNombre(),
 					fechaFuncion,
 					sectorElegido,
+					sedeFuncion.getNombre(),
 					precio);
 
 			sedeFuncion.asignarAsiento(sector, asiento);
@@ -247,7 +249,10 @@ public class Ticketek implements ITicketek {
 		StringBuilder sb = new StringBuilder();
 		DateTimeFormatter formato = DateTimeFormatter.ofPattern("dd/MM/yy");
 
-		for (Map.Entry<LocalDate, Funcion> entry : espectaculo.getFunciones().entrySet()) {
+		List<Map.Entry<LocalDate, Funcion>> funcionesOrdenadas = new ArrayList<>(espectaculo.getFunciones().entrySet());
+		funcionesOrdenadas.sort(Map.Entry.comparingByKey());
+
+		for (Map.Entry<LocalDate, Funcion> entry : funcionesOrdenadas) {
 			LocalDate fecha = entry.getKey();
 			Funcion funcion = entry.getValue();
 			Sede sede = funcion.getSede();
@@ -264,12 +269,23 @@ public class Ticketek implements ITicketek {
 					vendidasPorSector.put(nombreSector, vendidasPorSector.getOrDefault(nombreSector, 0) + 1);
 				}
 
+				String[] ordenSectores = { "VIP", "Comun", "Baja", "Alta" };
 				List<String> partesSector = new ArrayList<>();
-				for (Sector sector : sede.getSectores()) {
-					String nombreSector = sector.getNombre();
-					int vendidas = vendidasPorSector.getOrDefault(nombreSector, 0);
-					int capacidad = ((Teatro) sede).getCapacidadPorSector(nombreSector);
-					partesSector.add(nombreSector + ": " + vendidas + "/" + capacidad);
+
+				for (String nombreSector : ordenSectores) {
+					boolean sectorExiste = false;
+					for (Sector sector : sede.getSectores()) {
+						if (sector.getNombre().equals(nombreSector)) {
+							sectorExiste = true;
+							break;
+						}
+					}
+
+					if (sectorExiste) {
+						int vendidas = vendidasPorSector.getOrDefault(nombreSector, 0);
+						int capacidad = ((Teatro) sede).getCapacidadPorSector(nombreSector);
+						partesSector.add(nombreSector + ": " + vendidas + "/" + capacidad);
+					}
 				}
 
 				sb.append(String.join(" | ", partesSector));
@@ -324,9 +340,8 @@ public class Ticketek implements ITicketek {
 		if (!usuario.getContrasenia().equals(contrasenia))
 			throw new IllegalArgumentException("Contraseña inválida.");
 
-		List<IEntrada> resultado = (List<IEntrada>) usuario.getEntradas();
-
-		return resultado;
+		Map<Integer, Entrada> entradasMap = usuario.getEntradas();
+		return new ArrayList<IEntrada>(entradasMap.values());
 	}
 
 	@Override
@@ -410,6 +425,7 @@ public class Ticketek implements ITicketek {
 				espectaculo.getNombre(),
 				nuevaFecha,
 				sectorObj,
+				sede.getNombre(),
 				precio);
 
 		sede.asignarAsiento(sector, asiento);
@@ -461,17 +477,23 @@ public class Ticketek implements ITicketek {
 		if (!(nuevaFuncion.getSede() instanceof Estadio))
 			throw new IllegalArgumentException("La nueva función no es en un estadio.");
 
+		// Validar que el sector CAMPO existe
+		Sede sede = nuevaFuncion.getSede();
+		if (!sede.sectorExiste("CAMPO"))
+			throw new IllegalArgumentException("El sector CAMPO no existe en la sede.");
+
 		this.anularEntrada(entrada, contrasenia);
 
 		contadorCodigoEntrada++;
 		double precio = nuevaFuncion.calcularPrecioEntrada();
-		Sector nuevoSector = nuevaFuncion.getSede().getSector("CAMPO");
+		Sector nuevoSector = sede.getSector("CAMPO");
 
 		IEntrada nuevaEntrada = new Entrada(
 				contadorCodigoEntrada,
 				nombreEspectaculo,
 				nuevaFecha,
 				nuevoSector,
+				sede.getNombre(),
 				precio);
 
 		nuevaFuncion.agregarEntradaVendida((Entrada) nuevaEntrada);

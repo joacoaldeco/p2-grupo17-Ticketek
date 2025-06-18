@@ -28,7 +28,7 @@ public class MiniEstadio extends Teatro {
     }
 
     @Override
-    public double calcularPrecioEntrada(Double precioBase, Sector sector) {
+    public double calcularPrecioEntrada(double precioBase, Sector sector) {
         double precio = super.calcularPrecioEntrada(precioBase, sector);
         return precio + this.precioConsumicion;
     }

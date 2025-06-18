@@ -9,11 +9,14 @@ public class Estadio extends Sede {
     public Estadio(String nombre, String direccion, int capacidad) {
         super(nombre, direccion, capacidad);
         this.entradasVendidas = 0;
+
+        Sector sectorCampo = new Sector("CAMPO", capacidad, 0.0);
+        this.sectores.add(sectorCampo);
     }
 
     @Override
-    public double calcularPrecioEntrada(Double precioBase, Sector sector) {
-        return super.calcularPrecioEntrada(precioBase, sector);
+    public double calcularPrecioEntrada(double precioBase, Sector sector) {
+        return precioBase * (1 + sector.getPorcentajeAdicional() / 100.0);
     }
 
     public void registrarVenta(int cantidad) {
@@ -49,19 +52,12 @@ public class Estadio extends Sede {
                 this.getNombre(),
                 this.getDireccion(),
                 this.getCapacidad());
-        estadioClonado.sectores = this.clonarSectores();
-        estadioClonado.entradasVendidas = 0;
         return estadioClonado;
     }
 
     @Override
     public boolean sectorExiste(String nombreSector) {
-        for (Sector sector : getSectores()) {
-            if (sector.getNombre().equals(nombreSector)) {
-                return true;
-            }
-        }
-        return false;
+        return nombreSector.equals("CAMPO");
     }
 
     @Override
