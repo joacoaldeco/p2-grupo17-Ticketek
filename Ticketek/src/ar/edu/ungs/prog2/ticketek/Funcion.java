@@ -20,7 +20,7 @@ public class Funcion {
         if (precioBase <= 0) {
             throw new IllegalArgumentException("Precio base inválido.");
         }
-        this.sede = sede;
+        this.sede = sede.clonar(); // Clonamos para evitar el aliasing
         this.fecha = fecha;
         this.precioBase = precioBase;
         this.entradasVendidas = new ArrayList<>();

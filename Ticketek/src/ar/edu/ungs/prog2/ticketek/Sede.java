@@ -7,7 +7,7 @@ public abstract class Sede {
     private String nombre;
     private int capacidad;
     private String direccion;
-    private ArrayList<Sector> sectores;
+    protected ArrayList<Sector> sectores;
 
     public Sede(String nombre, String direccion, int capacidad) {
         if (nombre == null || nombre.isBlank()) {
@@ -61,6 +61,26 @@ public abstract class Sede {
         }
         sectores.add(sector);
     }
+
+    protected ArrayList<Sector> clonarSectores() {
+        ArrayList<Sector> sectoresClonados = new ArrayList<>();
+        for (Sector sector : this.sectores) {
+            sectoresClonados.add(clonarSector(sector));
+        }
+        return sectoresClonados;
+    }
+
+    private Sector clonarSector(Sector sectorOriginal) {
+        return new Sector(
+                sectorOriginal.getNumeroAsiento(),
+                sectorOriginal.getNumeroFila(),
+                sectorOriginal.getUbicacion(),
+                false,
+                sectorOriginal.getTipo(),
+                sectorOriginal.getPorcentajeAdicional());
+    }
+
+    public abstract Sede clonar();
 
     public abstract boolean verificarDisponibilidad(String sector, ArrayList<Integer> asientos);
 

@@ -5,20 +5,22 @@ import java.time.LocalDate;
 public class Entrada implements IEntrada {
 
     private Integer codigoEntrada;
-    private Espectaculo espectaculo;
-    private Funcion funcion;
+    private String nombreEspectaculo;
+    private LocalDate fechaFuncion;
     private Sector sector;
     private Double precioPagado;
 
-    public Entrada(Integer codigoEntrada, Espectaculo espectaculo, Funcion funcion, Sector sector, Double precioPagado) {
+    public Entrada(Integer codigoEntrada, String nombreEspectaculo, LocalDate fechaFuncion,
+            Sector sector, Double precioPagado) {
+
         if (codigoEntrada == null || codigoEntrada <= 0) {
             throw new IllegalArgumentException("Código de entrada inválido.");
         }
-        if (espectaculo == null) {
-            throw new IllegalArgumentException("Espectáculo inválido.");
+        if (nombreEspectaculo == null || nombreEspectaculo.isBlank()) {
+            throw new IllegalArgumentException("Nombre de espectáculo inválido.");
         }
-        if (funcion == null) {
-            throw new IllegalArgumentException("Función inválida.");
+        if (fechaFuncion == null) {
+            throw new IllegalArgumentException("Fecha de función inválida.");
         }
         if (sector == null) {
             throw new IllegalArgumentException("Sector inválido.");
@@ -26,66 +28,53 @@ public class Entrada implements IEntrada {
         if (precioPagado == null || precioPagado < 0) {
             throw new IllegalArgumentException("Precio pagado inválido.");
         }
+
         this.codigoEntrada = codigoEntrada;
-        this.espectaculo = espectaculo;
-        this.funcion = funcion;
+        this.nombreEspectaculo = nombreEspectaculo;
+        this.fechaFuncion = fechaFuncion;
         this.sector = sector;
         this.precioPagado = precioPagado;
     }
 
     @Override
     public double precio() {
-        return obtenerPrecioFinal();
+        return precioPagado;
     }
 
     @Override
     public String ubicacion() {
-        return obtenerSector().getNombre();
+        return sector.getNombre();
     }
 
     @Override
     public String toString() {
         return "Entrada #" + codigoEntrada +
-               " | Espectáculo: " + obtenerNombreEspectaculo() +
-               " | Fecha: " + obtenerFecha() +
-               " | Sector: " + obtenerSector().getNombre() +
-               " | Precio pagado: " + obtenerPrecioFinal();
+                " | Espectáculo: " + nombreEspectaculo +
+                " | Fecha: " + fechaFuncion +
+                " | Sector: " + sector.getNombre() +
+                " | Precio pagado: " + precioPagado;
     }
-
-    public double obtenerPrecioFinal() {
-        return precioPagado;
-    }
-
-    public String obtenerNombreEspectaculo() {
-        return espectaculo.getNombre();
-    }
-
-    public LocalDate obtenerFecha() {
-        return funcion.getFecha();
-    }
-
-    public Sector obtenerSector() {
-        return sector;
-    }
-    
 
     public Integer getCodigoEntrada() {
         return codigoEntrada;
     }
 
-    public Espectaculo getEspectaculo() {
-        return espectaculo;
+    @Override
+    public String obtenerNombreEspectaculo() {
+        return nombreEspectaculo;
     }
 
-    public Funcion getFuncion() {
-        return funcion;
+    @Override
+    public LocalDate obtenerFecha() {
+        return fechaFuncion;
+    }
+
+    @Override
+    public double obtenerPrecioFinal() {
+        return precioPagado;
     }
 
     public Sector getSector() {
         return sector;
-    }
-
-    public Double getPrecioPagado() {
-        return precioPagado;
     }
 }

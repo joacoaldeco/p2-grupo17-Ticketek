@@ -96,26 +96,54 @@ public class Teatro extends Sede {
     }
 
     @Override
+    public Sede clonar() {
+        String[] sectoresArray = sectoresTeatro.keySet().toArray(new String[0]);
+        int[] capacidadArray = new int[sectoresArray.length];
+        int[] porcentajeArray = new int[sectoresArray.length];
+
+        for (int i = 0; i < sectoresArray.length; i++) {
+            Sector sector = sectoresTeatro.get(sectoresArray[i]);
+            capacidadArray[i] = capacidadPorSector.get(sectoresArray[i]);
+            porcentajeArray[i] = (int) sector.getPorcentajeAdicional();
+        }
+
+        return new Teatro(
+                this.getNombre(),
+                this.getDireccion(),
+                this.getCapacidad(),
+                this.asientosPorFila,
+                sectoresArray,
+                capacidadArray,
+                porcentajeArray);
+    }
+
+    @Override
     public boolean sectorExiste(String nombreSector) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'sectorExiste'");
+        return sectoresTeatro.containsKey(nombreSector);
     }
 
     @Override
     public Sector getSector(String nombreSector) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getSector'");
+        return sectoresTeatro.get(nombreSector);
     }
 
     @Override
     public boolean asientosDisponibles(String sector, int[] asientos) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'asientosDisponibles'");
+        ArrayList<Integer> asientosList = new ArrayList<>();
+        for (int asiento : asientos) {
+            asientosList.add(asiento);
+        }
+        return verificarDisponibilidad(sector, asientosList);
     }
 
     @Override
     public void asignarAsiento(String sector, int asiento) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'asignarAsiento'");
+        if (!sectoresTeatro.containsKey(sector)) {
+            throw new IllegalArgumentException("El sector no existe en este teatro.");
+        }
+        ArrayList<Integer> reservados = reservas.get(sector);
+        if (!reservados.contains(asiento)) {
+            reservados.add(asiento);
+        }
     }
 }

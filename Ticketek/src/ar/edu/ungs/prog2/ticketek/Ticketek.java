@@ -11,6 +11,8 @@ public class Ticketek implements ITicketek {
 
 	private Map<String, Sede> sedes = new HashMap<>();
 	private Map<String, Usuario> usuarios = new HashMap<>();
+	private Map<Integer, Usuario> entradaUsuarioMap = new HashMap<>();
+
 	private Map<String, Espectaculo> espectaculos = new HashMap<>();
 
 	private Map<String, Double> recaudacionGlobal = new HashMap<>();
@@ -135,11 +137,19 @@ public class Ticketek implements ITicketek {
 
 			double precio = funcion.calcularPrecioEntrada();
 
-			Entrada entrada = new Entrada(contadorCodigoEntrada, esp, funcion, null, precio);
+			Sector sectorGeneral = new Sector("General", 0, 0.0);
+
+			Entrada entrada = new Entrada(
+					contadorCodigoEntrada,
+					esp.getNombre(),
+					fechaFuncion,
+					sectorGeneral,
+					precio);
 
 			funcion.agregarEntradaVendida(entrada);
 
 			usuario.agregarEntrada(contadorCodigoEntrada, (Entrada) entrada);
+			entradaUsuarioMap.put(contadorCodigoEntrada, usuario);
 
 			entradasVendidas.add(entrada);
 		}
@@ -196,13 +206,21 @@ public class Ticketek implements ITicketek {
 
 			double precio = funcion.calcularPrecioEntrada(sector);
 
-			Entrada entrada = new Entrada(contadorCodigoEntrada, esp, funcion, sedeFuncion.getSector(sector), precio);
+			Sector sectorElegido = sedeFuncion.getSector(sector);
+
+			Entrada entrada = new Entrada(
+					contadorCodigoEntrada,
+					esp.getNombre(),
+					fechaFuncion,
+					sectorElegido,
+					precio);
 
 			sedeFuncion.asignarAsiento(sector, asiento);
 
 			funcion.agregarEntradaVendida(entrada);
 
 			usuario.agregarEntrada(contadorCodigoEntrada, (Entrada) entrada);
+			entradaUsuarioMap.put(contadorCodigoEntrada, usuario);
 
 			entradasVendidas.add(entrada);
 		}
@@ -287,14 +305,11 @@ public class Ticketek implements ITicketek {
 			throw new IllegalArgumentException("Contraseña inválida.");
 
 		Map<Integer, Entrada> entradas = usuario.getEntradas();
-
 		List<IEntrada> resultado = new ArrayList<>();
 
-		for (Map.Entry<Integer, Entrada> entrada : entradas.entrySet()) {
-			Entrada entradaValue = entrada.getValue();
-
-			if (entradaValue.getFuncion().getFecha().isAfter(LocalDate.now())) {
-				resultado.add(entradaValue);
+		for (Entrada entrada : entradas.values()) {
+			if (entrada.obtenerFecha().isAfter(LocalDate.now())) {
+				resultado.add(entrada);
 			}
 		}
 
@@ -319,25 +334,19 @@ public class Ticketek implements ITicketek {
 		if (entrada == null)
 			throw new IllegalArgumentException("Entrada inválida.");
 
-		LocalDate hoy = LocalDate.now();
-		if (entrada.getFuncion().getFecha().isBefore(hoy)) {
+		if (entrada.obtenerFecha().isBefore(LocalDate.now())) {
 			return false;
 		}
 
 		Integer codigo = ((Entrada) entrada).getCodigoEntrada();
-		Usuario dueño = null;
-
-		for (Usuario u : usuarios.values()) {
-			if (u.getEntradas().containsKey(codigo)) {
-				dueño = u;
-				break;
-			}
-		}
+		Usuario dueño = entradaUsuarioMap.get(codigo);
 
 		if (dueño == null)
 			throw new IllegalArgumentException("Ningún usuario posee esa entrada.");
 
-		dueño.anularEntrada(codigo, contrasenia);
+		dueño.anularEntrada(codigo, contrasenia, espectaculos);
+
+		entradaUsuarioMap.remove(codigo);
 
 		return true;
 	}
@@ -347,7 +356,7 @@ public class Ticketek implements ITicketek {
 		if (entrada == null)
 			throw new IllegalArgumentException("Entrada inválida.");
 
-		if (entrada.getFuncion().getFecha().isBefore(LocalDate.now()))
+		if (entrada.obtenerFecha().isBefore(LocalDate.now()))
 			throw new IllegalArgumentException("La entrada ya está vencida.");
 
 		int codigo = entrada.getCodigoEntrada();
@@ -369,7 +378,13 @@ public class Ticketek implements ITicketek {
 		DateTimeFormatter formato = DateTimeFormatter.ofPattern("dd/MM/yy");
 		LocalDate nuevaFecha = LocalDate.parse(fecha, formato);
 
-		Espectaculo espectaculo = entrada.getEspectaculo();
+		String nombreEsp = entrada.obtenerNombreEspectaculo();
+		Espectaculo espectaculo = espectaculos.get(nombreEsp);
+
+		if (espectaculo == null) {
+			throw new IllegalArgumentException("Espectáculo no encontrado para la entrada.");
+		}
+
 		Funcion nuevaFuncion = espectaculo.getFunciones().get(nuevaFecha);
 
 		if (nuevaFuncion == null)
@@ -390,7 +405,12 @@ public class Ticketek implements ITicketek {
 		contadorCodigoEntrada++;
 		double precio = nuevaFuncion.calcularPrecioEntrada(sector);
 		Sector sectorObj = sede.getSector(sector);
-		IEntrada nuevaEntrada = new Entrada(contadorCodigoEntrada, espectaculo, nuevaFuncion, sectorObj, precio);
+		IEntrada nuevaEntrada = new Entrada(
+				contadorCodigoEntrada,
+				espectaculo.getNombre(),
+				nuevaFecha,
+				sectorObj,
+				precio);
 
 		sede.asignarAsiento(sector, asiento);
 
@@ -405,7 +425,10 @@ public class Ticketek implements ITicketek {
 		if (entrada == null)
 			throw new IllegalArgumentException("Entrada inválida.");
 
-		if (entrada.getFuncion().getFecha().isBefore(LocalDate.now()))
+		String nombreEspectaculo = entrada.obtenerNombreEspectaculo();
+		LocalDate fechaOriginal = entrada.obtenerFecha();
+
+		if (fechaOriginal.isBefore(LocalDate.now()))
 			throw new IllegalArgumentException("La entrada ya está vencida.");
 
 		int codigoOriginal = entrada.getCodigoEntrada();
@@ -427,9 +450,11 @@ public class Ticketek implements ITicketek {
 		DateTimeFormatter formato = DateTimeFormatter.ofPattern("dd/MM/yy");
 		LocalDate nuevaFecha = LocalDate.parse(fecha, formato);
 
-		Espectaculo espectaculo = entrada.getEspectaculo();
-		Funcion nuevaFuncion = espectaculo.getFunciones().get(nuevaFecha);
+		Espectaculo espectaculo = espectaculos.get(nombreEspectaculo);
+		if (espectaculo == null)
+			throw new IllegalArgumentException("Espectáculo no encontrado.");
 
+		Funcion nuevaFuncion = espectaculo.getFunciones().get(nuevaFecha);
 		if (nuevaFuncion == null)
 			throw new IllegalArgumentException("No hay función en la nueva fecha.");
 
@@ -440,8 +465,14 @@ public class Ticketek implements ITicketek {
 
 		contadorCodigoEntrada++;
 		double precio = nuevaFuncion.calcularPrecioEntrada();
-		IEntrada nuevaEntrada = new Entrada(contadorCodigoEntrada, espectaculo, nuevaFuncion,
-				nuevaFuncion.getSede().getSector("CAMPO"), precio);
+		Sector nuevoSector = nuevaFuncion.getSede().getSector("CAMPO");
+
+		IEntrada nuevaEntrada = new Entrada(
+				contadorCodigoEntrada,
+				nombreEspectaculo,
+				nuevaFecha,
+				nuevoSector,
+				precio);
 
 		nuevaFuncion.agregarEntradaVendida((Entrada) nuevaEntrada);
 		dueño.agregarEntrada(contadorCodigoEntrada, (Entrada) nuevaEntrada);

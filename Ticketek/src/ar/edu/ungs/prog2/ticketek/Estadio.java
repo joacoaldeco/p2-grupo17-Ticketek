@@ -44,28 +44,54 @@ public class Estadio extends Sede {
     }
 
     @Override
-    public void liberarUbicacion(Sector sector) {
-        // En un estadio, es posible que no se administre la liberación de ubicaciones
-        // individualizadas.
+    public Sede clonar() {
+        Estadio estadioClonado = new Estadio(
+                this.getNombre(),
+                this.getDireccion(),
+                this.getCapacidad());
+        estadioClonado.sectores = this.clonarSectores();
+        estadioClonado.entradasVendidas = 0;
+        return estadioClonado;
     }
 
     @Override
     public boolean sectorExiste(String nombreSector) {
-        throw new UnsupportedOperationException("Unimplemented method 'sectorExiste'");
+        for (Sector sector : getSectores()) {
+            if (sector.getNombre().equals(nombreSector)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override
     public Sector getSector(String nombreSector) {
-        throw new UnsupportedOperationException("Unimplemented method 'getSector'");
+        for (Sector sector : getSectores()) {
+            if (sector.getNombre().equals(nombreSector)) {
+                return sector;
+            }
+        }
+        return null;
     }
 
     @Override
     public boolean asientosDisponibles(String sector, int[] asientos) {
-        throw new UnsupportedOperationException("Unimplemented method 'asientosDisponibles'");
+        ArrayList<Integer> asientosList = new ArrayList<>();
+        for (int asiento : asientos) {
+            asientosList.add(asiento);
+        }
+        return verificarDisponibilidad(sector, asientosList);
     }
 
     @Override
     public void asignarAsiento(String sector, int asiento) {
-        throw new UnsupportedOperationException("Unimplemented method 'asignarAsiento'");
+        registrarVenta(1);
+    }
+
+    @Override
+    public void liberarUbicacion(Sector sector) {
+        if (entradasVendidas > 0) {
+            entradasVendidas--;
+        }
     }
 }

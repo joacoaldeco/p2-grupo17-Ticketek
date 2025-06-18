@@ -96,7 +96,7 @@ public class Usuario {
         entradas.remove(codigo);
     }
 
-    public void anularEntrada(Integer codigoEntrada, String contrasenia) {
+    public void anularEntrada(Integer codigoEntrada, String contrasenia, Map<String, Espectaculo> espectaculos) {
         if (!this.contrasenia.equals(contrasenia))
             throw new IllegalArgumentException("Contraseña inválida.");
 
@@ -104,9 +104,20 @@ public class Usuario {
         if (entrada == null)
             throw new IllegalArgumentException("Entrada no encontrada.");
 
-        entrada.getFuncion().liberarUbicacion(entrada.getSector());
+        String nombreEspectaculo = entrada.obtenerNombreEspectaculo();
+        Espectaculo espectaculo = espectaculos.get(nombreEspectaculo);
+        if (espectaculo == null)
+            throw new IllegalArgumentException("Espectáculo no encontrado para la entrada.");
+
+        LocalDate fechaFuncion = entrada.obtenerFecha();
+        Funcion funcion = espectaculo.getFunciones().get(fechaFuncion);
+        if (funcion == null)
+            throw new IllegalArgumentException("Función no encontrada para la entrada.");
+
+        funcion.liberarUbicacion(entrada.getSector());
 
         entradas.remove(codigoEntrada);
-        entrada.getFuncion().obtenerEntradasVendidas().remove(entrada);
+        funcion.obtenerEntradasVendidas().remove(entrada);
     }
+
 }

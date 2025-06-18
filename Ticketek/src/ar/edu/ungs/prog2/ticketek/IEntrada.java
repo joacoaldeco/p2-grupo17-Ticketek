@@ -1,5 +1,7 @@
 package ar.edu.ungs.prog2.ticketek;
 
+import java.time.LocalDate;
+
 public interface IEntrada {
 
 	/**
@@ -37,9 +39,9 @@ public interface IEntrada {
 
     double obtenerPrecioFinal();
 
-    Funcion getFuncion();
-
-	Espectaculo getEspectaculo();
+	String obtenerNombreEspectaculo();
+	
+	LocalDate obtenerFecha();
 
     Integer getCodigoEntrada();
 }
