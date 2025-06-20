@@ -16,22 +16,22 @@ public class Entrada implements IEntrada {
             Sector sector, String nombreSede, Double precioPagado) {
 
         if (codigoEntrada == null || codigoEntrada <= 0) {
-            throw new IllegalArgumentException("Código de entrada inválido.");
+            throw new IllegalArgumentException("Código de entrada inválido");
         }
         if (nombreEspectaculo == null || nombreEspectaculo.isBlank()) {
-            throw new IllegalArgumentException("Nombre de espectáculo inválido.");
+            throw new IllegalArgumentException("Nombre de espectáculo inválido");
         }
         if (fechaFuncion == null) {
-            throw new IllegalArgumentException("Fecha de función inválida.");
+            throw new IllegalArgumentException("Fecha de función inválida");
         }
         if (sector == null) {
-            throw new IllegalArgumentException("Sector inválido.");
+            throw new IllegalArgumentException("Sector inválido");
         }
         if (nombreSede == null || nombreSede.isBlank()) {
-            throw new IllegalArgumentException("Nombre de sede inválido.");
+            throw new IllegalArgumentException("Nombre de sede inválido");
         }
         if (precioPagado == null || precioPagado < 0) {
-            throw new IllegalArgumentException("Precio pagado inválido.");
+            throw new IllegalArgumentException("Precio pagado inválido");
         }
 
         this.codigoEntrada = codigoEntrada;

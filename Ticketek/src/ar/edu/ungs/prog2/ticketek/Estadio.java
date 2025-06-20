@@ -21,10 +21,10 @@ public class Estadio extends Sede {
 
     public void registrarVenta(int cantidad) {
         if (cantidad < 0) {
-            throw new IllegalArgumentException("La cantidad de entradas vendidas no puede ser negativa.");
+            throw new IllegalArgumentException("La cantidad de entradas vendidas no puede ser negativa");
         }
         if (cantidad > calcularCapacidadRestante()) {
-            throw new IllegalArgumentException("No hay suficientes entradas disponibles en la sede.");
+            throw new IllegalArgumentException("No hay suficientes entradas disponibles en la sede");
         }
         entradasVendidas += cantidad;
     }
@@ -40,7 +40,7 @@ public class Estadio extends Sede {
     @Override
     public boolean verificarDisponibilidad(String sector, ArrayList<Integer> asientos) {
         if (asientos == null) {
-            throw new IllegalArgumentException("La lista de asientos no puede ser nula.");
+            throw new IllegalArgumentException("La lista de asientos no puede ser nula");
         }
 
         return asientos.size() <= calcularCapacidadRestante();

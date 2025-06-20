@@ -10,16 +10,21 @@ public class Sector {
 
     public Sector(int numeroAsiento, int numeroFila, String ubicacion, boolean ocupado, String tipo,
             double porcentajeAdicional) {
+
         if (numeroAsiento <= 0)
-            throw new IllegalArgumentException("Número de asiento inválido.");
+            throw new IllegalArgumentException("Número de asiento inválido");
+
         if (numeroFila <= 0)
-            throw new IllegalArgumentException("Número de fila inválido.");
+            throw new IllegalArgumentException("Número de fila inválido");
+
         if (ubicacion == null || ubicacion.isBlank())
-            throw new IllegalArgumentException("Ubicación inválida.");
+            throw new IllegalArgumentException("Ubicación inválida");
+
         if (tipo == null || tipo.isBlank())
-            throw new IllegalArgumentException("Tipo inválido.");
+            throw new IllegalArgumentException("Tipo inválido");
+
         if (porcentajeAdicional < 0)
-            throw new IllegalArgumentException("El porcentaje de incremento no puede ser negativo.");
+            throw new IllegalArgumentException("El porcentaje de incremento no puede ser negativo");
 
         this.numeroAsiento = numeroAsiento;
         this.numeroFila = numeroFila;
@@ -30,7 +35,7 @@ public class Sector {
     }
 
     public Sector(String nombre, int capacidad, double porcentajeAdicional) {
-        this(1, 1, nombre, false, "General", porcentajeAdicional);
+        this(1, 1, nombre, false, "CAMPO", porcentajeAdicional);
     }
 
     public int getNumeroAsiento() {
@@ -62,18 +67,23 @@ public class Sector {
     }
 
     public double calcularPrecioAdicional(Double precioBase) {
+
         if (precioBase == null || precioBase < 0) {
-            throw new IllegalArgumentException("Precio base inválido.");
+            throw new IllegalArgumentException("Precio base inválido");
         }
+
         return precioBase * (porcentajeAdicional / 100.0);
     }
 
     @Override
     public boolean equals(Object obj) {
+
         if (this == obj)
             return true;
+
         if (!(obj instanceof Sector))
             return false;
+
         Sector other = (Sector) obj;
         return this.numeroAsiento == other.numeroAsiento &&
                 this.numeroFila == other.numeroFila &&

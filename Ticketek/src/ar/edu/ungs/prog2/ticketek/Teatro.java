@@ -14,12 +14,15 @@ public class Teatro extends Sede {
     public Teatro(String nombre, String direccion, int capacidadMaxima, int asientosPorFila,
             String[] sectores, int[] capacidadPorSector, int[] porcentajeAdicional) {
         super(nombre, direccion, capacidadMaxima);
+
         if (asientosPorFila <= 0)
-            throw new IllegalArgumentException("Asientos por fila inválido.");
+            throw new IllegalArgumentException("Asientos por fila inválido");
+
         if (sectores == null || capacidadPorSector == null || porcentajeAdicional == null)
-            throw new IllegalArgumentException("Parámetros de sectores inválidos.");
+            throw new IllegalArgumentException("Parámetros de sectores inválidos");
+
         if (sectores.length != capacidadPorSector.length || sectores.length != porcentajeAdicional.length)
-            throw new IllegalArgumentException("Datos de sectores inválidos.");
+            throw new IllegalArgumentException("Datos de sectores inválidos");
 
         this.capacidadPorSector = new HashMap<>();
         this.asientosPorFila = asientosPorFila;
@@ -27,10 +30,13 @@ public class Teatro extends Sede {
         this.reservas = new HashMap<>();
 
         for (int i = 0; i < sectores.length; i++) {
+
             Sector s = new Sector(sectores[i], capacidadPorSector[i], porcentajeAdicional[i]);
             sectoresTeatro.put(sectores[i], s);
-            this.capacidadPorSector.put(sectores[i], capacidadPorSector[i]); // FIX: Agregar capacidad al mapa
+
+            this.capacidadPorSector.put(sectores[i], capacidadPorSector[i]);
             this.agregarSector(s);
+
             reservas.put(sectores[i], new ArrayList<Integer>());
         }
     }
@@ -55,21 +61,27 @@ public class Teatro extends Sede {
 
     @Override
     public boolean verificarDisponibilidad(String sector, ArrayList<Integer> asientos) {
+
         if (sector == null || sector.isBlank()) {
-            throw new IllegalArgumentException("Nombre de sector inválido.");
+            throw new IllegalArgumentException("Nombre de sector inválido");
         }
+
         if (asientos == null) {
-            throw new IllegalArgumentException("La lista de asientos no puede ser nula.");
+            throw new IllegalArgumentException("La lista de asientos no puede ser nula");
         }
+
         if (!sectoresTeatro.containsKey(sector)) {
-            throw new IllegalArgumentException("El sector no existe en este teatro.");
+            throw new IllegalArgumentException("El sector no existe en este teatro");
         }
+
         for (Integer asiento : asientos) {
             if (asiento == null || asiento < 1 || asiento > asientosPorFila) {
                 return false;
             }
         }
+
         ArrayList<Integer> reservados = reservas.get(sector);
+
         for (Integer asiento : asientos) {
             if (reservados.contains(asiento)) {
                 return false;
@@ -80,13 +92,16 @@ public class Teatro extends Sede {
 
     @Override
     public void liberarUbicacion(Sector sector) {
+
         if (sector == null) {
-            throw new IllegalArgumentException("Sector nulo.");
+            throw new IllegalArgumentException("Sector nulo");
         }
+
         String nombreSector = sector.getNombre();
         if (!reservas.containsKey(nombreSector)) {
-            throw new IllegalArgumentException("El sector no existe en este teatro.");
+            throw new IllegalArgumentException("El sector no existe en este teatro");
         }
+
         reservas.put(nombreSector, new ArrayList<Integer>());
     }
 
@@ -96,13 +111,14 @@ public class Teatro extends Sede {
 
     @Override
     public Sede clonar() {
+
         String[] sectoresArray = sectoresTeatro.keySet().toArray(new String[0]);
         int[] capacidadArray = new int[sectoresArray.length];
         int[] porcentajeArray = new int[sectoresArray.length];
 
         for (int i = 0; i < sectoresArray.length; i++) {
             Sector sector = sectoresTeatro.get(sectoresArray[i]);
-            capacidadArray[i] = capacidadPorSector.get(sectoresArray[i]); // Ahora no será null
+            capacidadArray[i] = capacidadPorSector.get(sectoresArray[i]);
             porcentajeArray[i] = (int) sector.getPorcentajeAdicional();
         }
 
@@ -129,6 +145,7 @@ public class Teatro extends Sede {
     @Override
     public boolean asientosDisponibles(String sector, int[] asientos) {
         ArrayList<Integer> asientosList = new ArrayList<>();
+
         for (int asiento : asientos) {
             asientosList.add(asiento);
         }
@@ -137,9 +154,11 @@ public class Teatro extends Sede {
 
     @Override
     public void asignarAsiento(String sector, int asiento) {
+
         if (!sectoresTeatro.containsKey(sector)) {
-            throw new IllegalArgumentException("El sector no existe en este teatro.");
+            throw new IllegalArgumentException("El sector no existe en este teatro");
         }
+
         ArrayList<Integer> reservados = reservas.get(sector);
         if (!reservados.contains(asiento)) {
             reservados.add(asiento);

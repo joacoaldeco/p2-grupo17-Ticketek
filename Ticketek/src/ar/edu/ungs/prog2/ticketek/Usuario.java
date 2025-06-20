@@ -14,14 +14,18 @@ public class Usuario {
     private Map<Integer, Entrada> entradas;
 
     public Usuario(String email, String nombre, String apellido, String contrasenia) {
-        if (email == null || email.trim().isEmpty())
-            throw new IllegalArgumentException("El email no puede ser nulo o vacío.");
-        if (nombre == null || nombre.trim().isEmpty())
-            throw new IllegalArgumentException("El nombre no puede ser nulo o vacío.");
-        if (apellido == null || apellido.trim().isEmpty())
-            throw new IllegalArgumentException("El apellido no puede ser nulo o vacío.");
-        if (contrasenia == null || contrasenia.trim().isEmpty())
-            throw new IllegalArgumentException("La contraseña no puede ser nula o vacía.");
+
+        if (email == null || email.isBlank())
+            throw new IllegalArgumentException("Email inválido");
+
+        if (nombre == null || nombre.isBlank())
+            throw new IllegalArgumentException("Nombre inválido");
+
+        if (apellido == null || apellido.isBlank())
+            throw new IllegalArgumentException("Apellido inválido");
+
+        if (contrasenia == null || contrasenia.isBlank())
+            throw new IllegalArgumentException("Contraseña inválida");
 
         this.email = email;
         this.nombre = nombre;
@@ -51,18 +55,24 @@ public class Usuario {
     }
 
     public void agregarEntrada(Integer codigoEntrada, Entrada entrada) {
+
         if (codigoEntrada == null)
-            throw new IllegalArgumentException("El código de entrada no puede ser nulo.");
+            throw new IllegalArgumentException("El código de entrada no puede ser nulo");
+
         if (entrada == null)
-            throw new IllegalArgumentException("La entrada no puede ser nula.");
+            throw new IllegalArgumentException("La entrada no puede ser nula");
+
         if (entradas.containsKey(codigoEntrada))
-            throw new IllegalArgumentException("Ya existe una entrada con ese código.");
+            throw new IllegalArgumentException("Ya existe una entrada con ese código");
+
         entradas.put(codigoEntrada, entrada);
     }
 
     public ArrayList<Entrada> listarEntradasFuturas() {
         ArrayList<Entrada> entradasFuturas = new ArrayList<>();
+
         LocalDate hoy = LocalDate.now();
+
         for (Entrada entrada : entradas.values()) {
             LocalDate fechaDate = entrada.obtenerFecha();
             if (fechaDate != null) {
@@ -78,11 +88,13 @@ public class Usuario {
         return new ArrayList<>(entradas.values());
     }
 
-    public String verificarUbicacionEntrada(Integer codigoEntrada, String contrasena) {
-        if (!this.contrasenia.equals(contrasena))
-            throw new IllegalArgumentException("Contraseña incorrecta.");
+    public String verificarUbicacionEntrada(Integer codigoEntrada, String contrasenia) {
+
+        if (!this.credencialesCorrectas(contrasenia))
+            throw new IllegalArgumentException("Contraseña incorrecta");
+
         if (!entradas.containsKey(codigoEntrada))
-            throw new IllegalArgumentException("No existe una entrada con el código proporcionado.");
+            throw new IllegalArgumentException("No existe una entrada con el código proporcionado");
 
         Entrada entrada = entradas.get(codigoEntrada);
         return entrada.ubicacion();
@@ -97,27 +109,37 @@ public class Usuario {
     }
 
     public void anularEntrada(Integer codigoEntrada, String contrasenia, Map<String, Espectaculo> espectaculos) {
-        if (!this.contrasenia.equals(contrasenia))
-            throw new IllegalArgumentException("Contraseña inválida.");
+
+        if (!this.credencialesCorrectas(contrasenia))
+            throw new IllegalArgumentException("Contraseña incorrecta");
 
         Entrada entrada = entradas.get(codigoEntrada);
+
         if (entrada == null)
-            throw new IllegalArgumentException("Entrada no encontrada.");
+            throw new IllegalArgumentException("Entrada no encontrada");
 
         String nombreEspectaculo = entrada.obtenerNombreEspectaculo();
         Espectaculo espectaculo = espectaculos.get(nombreEspectaculo);
+
         if (espectaculo == null)
-            throw new IllegalArgumentException("Espectáculo no encontrado para la entrada.");
+            throw new IllegalArgumentException("Espectáculo no encontrado para la entrada");
 
         LocalDate fechaFuncion = entrada.obtenerFecha();
         Funcion funcion = espectaculo.getFunciones().get(fechaFuncion);
+
         if (funcion == null)
-            throw new IllegalArgumentException("Función no encontrada para la entrada.");
+            throw new IllegalArgumentException("Función no encontrada para la entrada");
 
         funcion.liberarUbicacion(entrada.getSector());
 
         entradas.remove(codigoEntrada);
-        funcion.obtenerEntradasVendidas().remove(entrada);
+        funcion.eliminarEntradaVendida(entrada);
+    }
+
+    public boolean credencialesCorrectas(String contrasenia) {
+        if (!this.getContrasenia().equals(contrasenia))
+            throw new IllegalArgumentException("Contraseña inválida");
+        return true;
     }
 
 }

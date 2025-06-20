@@ -8,10 +8,12 @@ public class MiniEstadio extends Teatro {
     public MiniEstadio(String nombre, String direccion, int capacidadMaxima, int asientosPorFila,
             int cantidadPuestos, double precioConsumicion, String[] sectores, int[] capacidad,
             int[] porcentajeAdicional) {
+
         super(nombre, direccion, capacidadMaxima, asientosPorFila, sectores, capacidad, porcentajeAdicional);
 
         if (cantidadPuestos <= 0)
             throw new IllegalArgumentException("Cantidad de puestos inválida");
+
         if (precioConsumicion <= 0)
             throw new IllegalArgumentException("Precio de consumición inválido");
 
@@ -30,19 +32,25 @@ public class MiniEstadio extends Teatro {
     @Override
     public double calcularPrecioEntrada(double precioBase, Sector sector) {
         double precio = super.calcularPrecioEntrada(precioBase, sector);
+
         return precio + this.precioConsumicion;
     }
 
     @Override
     public Sede clonar() {
+
         String[] sectoresArray = getSectoresTeatro().keySet().toArray(new String[0]);
+
         int[] capacidadArray = new int[sectoresArray.length];
+
         int[] porcentajeArray = new int[sectoresArray.length];
 
         for (int i = 0; i < sectoresArray.length; i++) {
+
             Sector sector = getSectoresTeatro().get(sectoresArray[i]);
             capacidadArray[i] = getCapacidadPorSector(sectoresArray[i]);
             porcentajeArray[i] = (int) sector.getPorcentajeAdicional();
+
         }
 
         return new MiniEstadio(

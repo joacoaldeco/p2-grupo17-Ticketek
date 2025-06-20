@@ -10,15 +10,19 @@ public abstract class Sede {
     protected ArrayList<Sector> sectores;
 
     public Sede(String nombre, String direccion, int capacidad) {
+
         if (nombre == null || nombre.isBlank()) {
             throw new IllegalArgumentException("Nombre inválido");
         }
+
         if (direccion == null || direccion.isBlank() || !direccion.matches("^(?=.*[A-Za-z])(?=.*\\d).+$")) {
             throw new IllegalArgumentException("Dirección inválida");
         }
+
         if (capacidad <= 0) {
             throw new IllegalArgumentException("Capacidad inválida");
         }
+
         this.nombre = nombre;
         this.direccion = direccion;
         this.capacidad = capacidad;
@@ -52,16 +56,18 @@ public abstract class Sede {
             throw new IllegalArgumentException("Sector nulo");
         }
         if (sectores.contains(sector)) {
-            throw new IllegalArgumentException("Sector ya existe en la sede.");
+            throw new IllegalArgumentException("Sector ya existe en la sede");
         }
         sectores.add(sector);
     }
 
     protected ArrayList<Sector> clonarSectores() {
         ArrayList<Sector> sectoresClonados = new ArrayList<>();
+
         for (Sector sector : this.sectores) {
             sectoresClonados.add(clonarSector(sector));
         }
+
         return sectoresClonados;
     }
 
