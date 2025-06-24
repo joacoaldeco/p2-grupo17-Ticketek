@@ -1,6 +1,7 @@
 package ar.edu.ungs.prog2.ticketek;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public abstract class Sede {
 
@@ -86,6 +87,8 @@ public abstract class Sede {
     public abstract boolean verificarDisponibilidad(String sector, ArrayList<Integer> asientos);
 
     public abstract void liberarUbicacion(Sector sector);
+
+    public abstract void liberarUbicacion(Sector sector, List<Integer> asientos);
 
     public abstract boolean sectorExiste(String nombreSector);
 

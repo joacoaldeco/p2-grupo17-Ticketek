@@ -2,6 +2,7 @@ package ar.edu.ungs.prog2.ticketek;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 
 public class Entrada implements IEntrada {
 
@@ -11,9 +12,15 @@ public class Entrada implements IEntrada {
     private Sector sector;
     private Double precioPagado;
     private String nombreSede;
+    private List<Integer> asientos;
 
     public Entrada(Integer codigoEntrada, String nombreEspectaculo, LocalDate fechaFuncion,
             Sector sector, String nombreSede, Double precioPagado) {
+        this(codigoEntrada, nombreEspectaculo, fechaFuncion, sector, nombreSede, precioPagado, null);
+    }
+
+    public Entrada(Integer codigoEntrada, String nombreEspectaculo, LocalDate fechaFuncion,
+            Sector sector, String nombreSede, Double precioPagado, List<Integer> asientos) {
 
         if (codigoEntrada == null || codigoEntrada <= 0) {
             throw new IllegalArgumentException("Código de entrada inválido");
@@ -40,6 +47,7 @@ public class Entrada implements IEntrada {
         this.sector = sector;
         this.nombreSede = nombreSede;
         this.precioPagado = precioPagado;
+        this.asientos = asientos;
     }
 
     @Override
@@ -91,5 +99,13 @@ public class Entrada implements IEntrada {
 
     public Sector getSector() {
         return sector;
+    }
+
+    public List<Integer> getAsientos() {
+        return asientos;
+    }
+
+    public boolean tieneAsientosEspecificos() {
+        return asientos != null && !asientos.isEmpty();
     }
 }

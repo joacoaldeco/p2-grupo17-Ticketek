@@ -3,6 +3,7 @@ package ar.edu.ungs.prog2.ticketek;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 public class Funcion {
@@ -60,6 +61,19 @@ public class Funcion {
         sede.liberarUbicacion(sector);
     }
 
+    public void liberarUbicacion(Sector sector, List<Integer> asientos) {
+
+        if (sector == null) {
+            throw new IllegalArgumentException("El sector no puede ser nulo");
+        }
+
+        if (asientos == null || asientos.size() <= 0) {
+            throw new IllegalArgumentException("Los asientos no pueden ser nulos");
+        }
+
+        sede.liberarUbicacion(sector, asientos);
+    }
+
     public Set<Entrada> obtenerEntradasVendidas() {
         return new HashSet<>(entradasVendidas);
     }
@@ -100,10 +114,6 @@ public class Funcion {
         Sector sector = sede.getSector(nombreSector);
 
         return calcularPrecioEntrada(sector);
-    }
-
-    public void eliminarEntrada(IEntrada entrada) {
-        entradasVendidas.remove(entrada);
     }
 
     public void eliminarEntradaVendida(Entrada entrada) {

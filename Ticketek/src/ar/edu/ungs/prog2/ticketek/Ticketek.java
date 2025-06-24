@@ -3,6 +3,7 @@ package ar.edu.ungs.prog2.ticketek;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -213,6 +214,8 @@ public class Ticketek implements ITicketek {
 
 		List<IEntrada> entradasVendidas = new ArrayList<>();
 
+		List<Integer> listaAsientos = new ArrayList<>();
+
 		for (int asiento : asientos) {
 			contadorCodigoEntrada++;
 
@@ -220,15 +223,17 @@ public class Ticketek implements ITicketek {
 
 			double precio = sedeFuncion.calcularPrecioEntrada(funcion.calcularPrecioEntrada(), sectorElegido);
 
+			sedeFuncion.asignarAsiento(sector, asiento);
+			listaAsientos.add(asiento);
+
 			Entrada entrada = new Entrada(
 					contadorCodigoEntrada,
 					esp.getNombre(),
 					fechaParseada,
 					sectorElegido,
 					sedeFuncion.getNombre(),
-					precio);
-
-			sedeFuncion.asignarAsiento(sector, asiento);
+					precio,
+					(List<Integer>) listaAsientos);
 
 			funcion.agregarEntradaVendida(entrada);
 
@@ -447,13 +452,16 @@ public class Ticketek implements ITicketek {
 
 		Sector sectorObj = sede.getSector(sector);
 
+		List<Integer> asientos = Arrays.asList(asiento);
+
 		IEntrada nuevaEntrada = new Entrada(
 				contadorCodigoEntrada,
 				espectaculo.getNombre(),
 				fechaParseada,
 				sectorObj,
 				sede.getNombre(),
-				precio);
+				precio,
+				asientos);
 
 		sede.asignarAsiento(sector, asiento);
 

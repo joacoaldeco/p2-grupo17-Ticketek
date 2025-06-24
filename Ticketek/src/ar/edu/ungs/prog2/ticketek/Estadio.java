@@ -1,6 +1,7 @@
 package ar.edu.ungs.prog2.ticketek;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class Estadio extends Sede {
 
@@ -89,5 +90,10 @@ public class Estadio extends Sede {
         if (entradasVendidas > 0) {
             entradasVendidas--;
         }
+    }
+
+    @Override
+    public void liberarUbicacion(Sector sector, List<Integer> asientos) {
+        return;
     }
 }

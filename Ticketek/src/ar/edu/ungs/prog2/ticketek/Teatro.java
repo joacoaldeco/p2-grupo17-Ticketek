@@ -1,6 +1,7 @@
 package ar.edu.ungs.prog2.ticketek;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.ArrayList;
 import java.util.Map;
 
@@ -92,9 +93,16 @@ public class Teatro extends Sede {
 
     @Override
     public void liberarUbicacion(Sector sector) {
+        return;
+    }
 
+    @Override
+    public void liberarUbicacion(Sector sector, List<Integer> asientos) {
         if (sector == null) {
             throw new IllegalArgumentException("Sector nulo");
+        }
+        if (asientos == null || asientos.isEmpty()) {
+            throw new IllegalArgumentException("Lista de asientos inválida");
         }
 
         String nombreSector = sector.getNombre();
@@ -102,7 +110,10 @@ public class Teatro extends Sede {
             throw new IllegalArgumentException("El sector no existe en este teatro");
         }
 
-        reservas.put(nombreSector, new ArrayList<Integer>());
+        List<Integer> asientosReservados = reservas.get(nombreSector);
+        for (Integer asiento : asientos) {
+            asientosReservados.remove(asiento);
+        }
     }
 
     public int getCapacidadPorSector(String nombreSector) {

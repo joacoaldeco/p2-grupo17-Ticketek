@@ -1,5 +1,7 @@
 package ar.edu.ungs.prog2.ticketek;
 
+import java.util.List;
+
 public class MiniEstadio extends Teatro {
 
     private int cantidadPuestos;
@@ -34,6 +36,11 @@ public class MiniEstadio extends Teatro {
         double precio = super.calcularPrecioEntrada(precioBase, sector);
 
         return precio + this.precioConsumicion;
+    }
+
+    @Override
+    public void liberarUbicacion(Sector sector, List<Integer> asientos) {
+        super.liberarUbicacion(sector, asientos);
     }
 
     @Override

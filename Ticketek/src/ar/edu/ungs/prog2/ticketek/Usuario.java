@@ -104,10 +104,6 @@ public class Usuario {
         return entradas.containsKey(codigo);
     }
 
-    public void eliminarEntrada(int codigo) {
-        entradas.remove(codigo);
-    }
-
     public void anularEntrada(Integer codigoEntrada, String contrasenia, Map<String, Espectaculo> espectaculos) {
 
         if (!this.credencialesCorrectas(contrasenia))
@@ -130,7 +126,11 @@ public class Usuario {
         if (funcion == null)
             throw new IllegalArgumentException("Función no encontrada para la entrada");
 
-        funcion.liberarUbicacion(entrada.getSector());
+        if (entrada.tieneAsientosEspecificos()) {
+            funcion.liberarUbicacion(entrada.getSector(), entrada.getAsientos());
+        } else {
+            funcion.liberarUbicacion(entrada.getSector());
+        }
 
         entradas.remove(codigoEntrada);
         funcion.eliminarEntradaVendida(entrada);
