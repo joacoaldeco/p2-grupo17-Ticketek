@@ -75,4 +75,12 @@ public class Espectaculo {
     public Map<LocalDate, Funcion> getFunciones() {
         return funciones;
     }
+
+    public Funcion buscarFuncionEnFecha(LocalDate fecha) {
+        Funcion funcion = this.getFunciones().get(fecha);
+
+        if (funcion == null)
+            throw new IllegalArgumentException("No hay función en esa fecha");
+        return funcion;
+    }
 }

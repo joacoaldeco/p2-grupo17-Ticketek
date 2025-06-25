@@ -11,20 +11,13 @@ import java.util.Map;
 public class Ticketek implements ITicketek {
 
 	private Map<String, Sede> sedes = new HashMap<>();
-	private Map<String, Usuario> usuarios = new HashMap<>();
-	private Map<Integer, Usuario> entradaUsuarioMap = new HashMap<>();
-
 	private Map<String, Espectaculo> espectaculos = new HashMap<>();
-
-	private Map<String, Double> recaudacionGlobal = new HashMap<>();
-	private Map<String, Map<String, Double>> recaudacionPorSede = new HashMap<>();
-	private int contadorCodigoEntrada = 0;
+	private Map<String, Usuario> usuarios = new HashMap<>();
 
 	@Override
 	public void registrarSede(String nombre, String direccion, int capacidadMaxima) {
 
-		if (sedes.containsKey(nombre))
-			throw new IllegalArgumentException("Ya existe una sede con ese nombre");
+		validarNombreSedeUnico(nombre);
 
 		Sede nuevaSede = new Estadio(nombre, direccion, capacidadMaxima);
 		sedes.put(nombre, nuevaSede);
@@ -34,8 +27,7 @@ public class Ticketek implements ITicketek {
 	public void registrarSede(String nombre, String direccion, int capacidadMaxima, int asientosPorFila,
 			String[] sectores, int[] capacidad, int[] porcentajeAdicional) {
 
-		if (sedes.containsKey(nombre))
-			throw new IllegalArgumentException("Ya existe una sede con ese nombre");
+		validarNombreSedeUnico(nombre);
 
 		Sede nuevaSede = new Teatro(nombre, direccion, capacidadMaxima, asientosPorFila, sectores, capacidad,
 				porcentajeAdicional);
@@ -47,8 +39,7 @@ public class Ticketek implements ITicketek {
 			int cantidadPuestos, double precioConsumicion,
 			String[] sectores, int[] capacidad, int[] porcentajeAdicional) {
 
-		if (sedes.containsKey(nombre))
-			throw new IllegalArgumentException("Ya existe una sede con ese nombre");
+		validarNombreSedeUnico(nombre);
 
 		Sede nuevaSede = new MiniEstadio(nombre, direccion, capacidadMaxima, asientosPorFila,
 				cantidadPuestos, precioConsumicion,
@@ -83,11 +74,9 @@ public class Ticketek implements ITicketek {
 	@Override
 	public void agregarFuncion(String nombreEspectaculo, String fecha, String sede, double precioBase) {
 
-		if (!espectaculos.containsKey(nombreEspectaculo))
-			throw new IllegalArgumentException("Espectáculo no encontrado");
+		Espectaculo espObj = buscarEspectaculo(nombreEspectaculo);
 
-		if (!sedes.containsKey(sede))
-			throw new IllegalArgumentException("Sede no encontrada");
+		Sede sedeObj = buscarSede(sede);
 
 		LocalDate fechaParseada = this.parsearFecha(fecha);
 
@@ -106,49 +95,42 @@ public class Ticketek implements ITicketek {
 			}
 		}
 
-		Espectaculo espectaculo = espectaculos.get(nombreEspectaculo);
-
-		Sede sedeObj = sedes.get(sede);
-
-		espectaculo.agregarFuncion(sedeObj, fechaParseada, precioBase);
+		espObj.agregarFuncion(sedeObj, fechaParseada, precioBase);
 	}
 
 	@Override
 	public List<IEntrada> venderEntrada(String nombreEspectaculo, String fecha, String email, String contrasenia,
 			int cantidadEntradas) {
 
-		Usuario usuario = usuarios.get(email);
-
-		if (usuario == null)
-			throw new IllegalArgumentException("Usuario no registrado");
+		Usuario usuario = buscarUsuario(email);
 
 		usuario.credencialesCorrectas(contrasenia);
 
-		Espectaculo esp = espectaculos.get(nombreEspectaculo);
-
-		if (esp == null)
-			throw new IllegalArgumentException("Espectáculo no registrado");
+		Espectaculo esp = buscarEspectaculo(nombreEspectaculo);
 
 		LocalDate fechaParseada = this.parsearFecha(fecha);
 
-		Funcion funcion = esp.getFunciones().get(fechaParseada);
-
-		if (funcion == null)
-			throw new IllegalArgumentException("No hay función en esa fecha");
+		Funcion funcion = esp.buscarFuncionEnFecha(fechaParseada);
 
 		Sede sedeFuncion = funcion.getSede();
 
+		if (sedeFuncion.estaNumerada()) {
+			throw new IllegalCallerException("La función está numerada");
+		}
+
+		Sector sectorGeneral = new Sector("CAMPO", 0, 0.0);
+
+		if (!sedeFuncion.verificarDisponibilidad(sectorGeneral.getNombre(), new ArrayList<Integer>())) {
+			throw new IllegalCallerException("No hay capacidad disponible para " + cantidadEntradas + " entradas");
+		}
+
 		List<IEntrada> entradasVendidas = new ArrayList();
 
+		double precio = funcion.calcularPrecioEntrada();
+
 		for (int i = 0; i < cantidadEntradas; i++) {
-			contadorCodigoEntrada++;
-
-			double precio = funcion.calcularPrecioEntrada();
-
-			Sector sectorGeneral = new Sector("CAMPO", 0, 0.0);
 
 			Entrada entrada = new Entrada(
-					contadorCodigoEntrada,
 					esp.getNombre(),
 					fechaParseada,
 					sectorGeneral,
@@ -157,26 +139,10 @@ public class Ticketek implements ITicketek {
 
 			funcion.agregarEntradaVendida(entrada);
 
-			usuario.agregarEntrada(contadorCodigoEntrada, (Entrada) entrada);
-			entradaUsuarioMap.put(contadorCodigoEntrada, usuario);
+			usuario.agregarEntrada(entrada.getCodigoEntrada(), (Entrada) entrada);
 
 			entradasVendidas.add(entrada);
 		}
-
-		double totalVenta = 0;
-
-		for (IEntrada entrada : entradasVendidas) {
-			totalVenta += entrada.obtenerPrecioFinal();
-		}
-
-		recaudacionGlobal.put(nombreEspectaculo, recaudacionGlobal.getOrDefault(nombreEspectaculo, 0.0) + totalVenta);
-
-		Map<String, Double> recaudacionSede = recaudacionPorSede.getOrDefault(nombreEspectaculo, new HashMap<>());
-
-		recaudacionSede.put(sedeFuncion.getNombre(),
-				recaudacionSede.getOrDefault(sedeFuncion.getNombre(), 0.0) + totalVenta);
-
-		recaudacionPorSede.put(nombreEspectaculo, recaudacionSede);
 
 		return entradasVendidas;
 	}
@@ -185,24 +151,15 @@ public class Ticketek implements ITicketek {
 	public List<IEntrada> venderEntrada(String nombreEspectaculo, String fecha, String email, String contrasenia,
 			String sector, int[] asientos) {
 
-		Usuario usuario = usuarios.get(email);
-
-		if (usuario == null)
-			throw new IllegalArgumentException("Usuario no registrado");
+		Usuario usuario = buscarUsuario(email);
 
 		usuario.credencialesCorrectas(contrasenia);
 
-		Espectaculo esp = espectaculos.get(nombreEspectaculo);
-
-		if (esp == null)
-			throw new IllegalArgumentException("Espectáculo no registrado");
+		Espectaculo esp = buscarEspectaculo(nombreEspectaculo);
 
 		LocalDate fechaParseada = this.parsearFecha(fecha);
 
-		Funcion funcion = esp.getFunciones().get(fechaParseada);
-
-		if (funcion == null)
-			throw new IllegalArgumentException("No hay función en esa fecha");
+		Funcion funcion = esp.buscarFuncionEnFecha(fechaParseada);
 
 		Sede sedeFuncion = funcion.getSede();
 
@@ -214,107 +171,54 @@ public class Ticketek implements ITicketek {
 
 		List<IEntrada> entradasVendidas = new ArrayList<>();
 
-		List<Integer> listaAsientos = new ArrayList<>();
+		Sector sectorElegido = sedeFuncion.getSector(sector);
 
 		for (int asiento : asientos) {
-			contadorCodigoEntrada++;
-
-			Sector sectorElegido = sedeFuncion.getSector(sector);
-
 			double precio = sedeFuncion.calcularPrecioEntrada(funcion.calcularPrecioEntrada(), sectorElegido);
 
 			sedeFuncion.asignarAsiento(sector, asiento);
-			listaAsientos.add(asiento);
 
 			Entrada entrada = new Entrada(
-					contadorCodigoEntrada,
 					esp.getNombre(),
 					fechaParseada,
 					sectorElegido,
 					sedeFuncion.getNombre(),
 					precio,
-					(List<Integer>) listaAsientos);
+					asiento);
 
 			funcion.agregarEntradaVendida(entrada);
-
-			usuario.agregarEntrada(contadorCodigoEntrada, (Entrada) entrada);
-			entradaUsuarioMap.put(contadorCodigoEntrada, usuario);
-
+			usuario.agregarEntrada(entrada.getCodigoEntrada(), entrada);
 			entradasVendidas.add(entrada);
 		}
-
-		double totalVenta = 0;
-
-		for (IEntrada entrada : entradasVendidas) {
-			totalVenta += entrada.obtenerPrecioFinal();
-		}
-
-		recaudacionGlobal.put(nombreEspectaculo, recaudacionGlobal.getOrDefault(nombreEspectaculo, 0.0) + totalVenta);
-
-		Map<String, Double> recaudacionSede = recaudacionPorSede.getOrDefault(nombreEspectaculo, new HashMap<>());
-
-		recaudacionSede.put(sedeFuncion.getNombre(),
-				recaudacionSede.getOrDefault(sedeFuncion.getNombre(), 0.0) + totalVenta);
-
-		recaudacionPorSede.put(nombreEspectaculo, recaudacionSede);
 
 		return entradasVendidas;
 	}
 
 	@Override
 	public String listarFunciones(String nombreEspectaculo) {
-
-		Espectaculo espectaculo = espectaculos.get(nombreEspectaculo);
-
-		if (espectaculo == null)
-			throw new IllegalArgumentException("Espectáculo no encontrado");
+		Espectaculo espectaculo = buscarEspectaculo(nombreEspectaculo);
 
 		StringBuilder sb = new StringBuilder();
-
 		DateTimeFormatter formato = DateTimeFormatter.ofPattern("dd/MM/yy");
 
 		List<Map.Entry<LocalDate, Funcion>> funcionesOrdenadas = new ArrayList<>(espectaculo.getFunciones().entrySet());
 		funcionesOrdenadas.sort(Map.Entry.comparingByKey());
 
 		for (Map.Entry<LocalDate, Funcion> entry : funcionesOrdenadas) {
-
 			LocalDate fecha = entry.getKey();
 			Funcion funcion = entry.getValue();
 			Sede sede = funcion.getSede();
 
-			sb.append(" - (").append(fecha.format(formato)).append(") ").append(sede.getNombre()).append(" - ");
+			sb.append(" - (")
+					.append(fecha.format(formato))
+					.append(") ")
+					.append(sede.getNombre())
+					.append(" - ");
 
 			if (sede instanceof Estadio) {
-				int entradas = funcion.obtenerEntradasVendidas().size();
-				sb.append(entradas).append("/").append(sede.getCapacidad());
+				sb.append(formatearEstadio(funcion, sede));
 			} else {
-				Map<String, Integer> vendidasPorSector = new HashMap<>();
-
-				for (Entrada entrada : funcion.obtenerEntradasVendidas()) {
-					String nombreSector = entrada.getSector().getNombre();
-					vendidasPorSector.put(nombreSector, vendidasPorSector.getOrDefault(nombreSector, 0) + 1);
-				}
-
-				String[] ordenSectores = { "VIP", "Comun", "Baja", "Alta" };
-				List<String> partesSector = new ArrayList<>();
-
-				for (String nombreSector : ordenSectores) {
-					boolean sectorExiste = false;
-					for (Sector sector : sede.getSectores()) {
-						if (sector.getNombre().equals(nombreSector)) {
-							sectorExiste = true;
-							break;
-						}
-					}
-
-					if (sectorExiste) {
-						int vendidas = vendidasPorSector.getOrDefault(nombreSector, 0);
-						int capacidad = ((Teatro) sede).getCapacidadPorSector(nombreSector);
-						partesSector.add(nombreSector + ": " + vendidas + "/" + capacidad);
-					}
-				}
-
-				sb.append(String.join(" | ", partesSector));
+				sb.append(formatearSedeConSectores(funcion, sede));
 			}
 
 			sb.append("\n");
@@ -325,9 +229,7 @@ public class Ticketek implements ITicketek {
 
 	@Override
 	public List<IEntrada> listarEntradasEspectaculo(String nombreEspectaculo) {
-		Espectaculo espectaculo = espectaculos.get(nombreEspectaculo);
-		if (espectaculo == null)
-			throw new IllegalArgumentException("Espectáculo no encontrado");
+		Espectaculo espectaculo = buscarEspectaculo(nombreEspectaculo);
 
 		List<IEntrada> resultado = new ArrayList<>();
 
@@ -341,10 +243,7 @@ public class Ticketek implements ITicketek {
 	@Override
 	public List<IEntrada> listarEntradasFuturas(String email, String contrasenia) {
 
-		Usuario usuario = usuarios.get(email);
-
-		if (usuario == null)
-			throw new IllegalArgumentException("Usuario no registrado");
+		Usuario usuario = buscarUsuario(email);
 
 		usuario.credencialesCorrectas(contrasenia);
 
@@ -363,10 +262,7 @@ public class Ticketek implements ITicketek {
 	@Override
 	public List<IEntrada> listarTodasLasEntradasDelUsuario(String email, String contrasenia) {
 
-		Usuario usuario = usuarios.get(email);
-
-		if (usuario == null)
-			throw new IllegalArgumentException("Usuario no registrado");
+		Usuario usuario = buscarUsuario(email);
 
 		usuario.credencialesCorrectas(contrasenia);
 
@@ -576,24 +472,22 @@ public class Ticketek implements ITicketek {
 
 	@Override
 	public double totalRecaudado(String nombreEspectaculo) {
+		Espectaculo e = buscarEspectaculo(nombreEspectaculo);
 
-		if (!espectaculos.containsKey(nombreEspectaculo))
-			throw new IllegalArgumentException("Espectáculo no encontrado");
-
-		return recaudacionGlobal.get(nombreEspectaculo);
+		return e.calcularRecaudacionTotal();
 	}
 
 	@Override
 	public double totalRecaudadoPorSede(String nombreEspectaculo, String nombreSede) {
+		Espectaculo e = buscarEspectaculo(nombreEspectaculo);
 
-		if (!espectaculos.containsKey(nombreEspectaculo))
-			throw new IllegalArgumentException("Espectáculo no encontrado");
-
-		if (!sedes.containsKey(nombreSede))
-			throw new IllegalArgumentException("Sede no encontrada");
-
-		Map<String, Double> recaudacionSede = recaudacionPorSede.getOrDefault(nombreEspectaculo, new HashMap<>());
-		return recaudacionSede.get(nombreSede);
+		double total = 0;
+		for (Funcion f : e.getFunciones().values()) {
+			if (f.getNombreSede().equals(nombreSede)) {
+				total += f.calcularRecaudacion();
+			}
+		}
+		return total;
 	}
 
 	private LocalDate parsearFecha(String fecha) {
@@ -602,4 +496,64 @@ public class Ticketek implements ITicketek {
 		return fechaFuncion;
 	}
 
+	private String formatearEstadio(Funcion funcion, Sede sede) {
+		int entradas = funcion.obtenerEntradasVendidas().size();
+		return entradas + "/" + sede.getCapacidad();
+	}
+
+	private String formatearSedeConSectores(Funcion funcion, Sede sede) {
+		Map<String, Integer> vendidasPorSector = new HashMap<>();
+
+		for (Entrada entrada : funcion.obtenerEntradasVendidas()) {
+			String nombreSector = entrada.getSector().getNombre();
+			vendidasPorSector.put(nombreSector, vendidasPorSector.getOrDefault(nombreSector, 0) + 1);
+		}
+
+		List<String> ordenSectores = Arrays.asList("VIP", "Comun", "Baja", "Alta");
+		List<String> partesSector = new ArrayList<>();
+
+		for (String nombreSector : ordenSectores) {
+			boolean existe = sede.getSectores().stream()
+					.anyMatch(s -> s.getNombre().equals(nombreSector));
+
+			if (existe) {
+				int vendidas = vendidasPorSector.getOrDefault(nombreSector, 0);
+				int capacidad = sede.getCapacidadPorSector(nombreSector);
+				partesSector.add(nombreSector + ": " + vendidas + "/" + capacidad);
+			}
+		}
+
+		return String.join(" | ", partesSector);
+	}
+
+	/**
+	 * --------------------------------------------------------------------------------------------------------------------------------------------------------------------
+	 * VALIDACIONES
+	 * --------------------------------------------------------------------------------------------------------------------------------------------------------------------
+	 */
+
+	private void validarNombreSedeUnico(String nombre) {
+		if (sedes.containsKey(nombre)) {
+			throw new IllegalArgumentException("Ya existe una sede con ese nombre");
+		}
+	}
+
+	private Espectaculo buscarEspectaculo(String nombre) {
+		if (!espectaculos.containsKey(nombre))
+			throw new IllegalArgumentException("Espectáculo no encontrado");
+		return espectaculos.get(nombre);
+	}
+
+	private Sede buscarSede(String nombre) {
+		if (!sedes.containsKey(nombre))
+			throw new IllegalArgumentException("Sede no encontrada");
+		return sedes.get(nombre);
+	}
+
+	private Usuario buscarUsuario(String email) {
+		if (!usuarios.containsKey(email))
+			throw new IllegalArgumentException("Usuario no encontrado");
+
+		return usuarios.get(email);
+	}
 }

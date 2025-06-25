@@ -75,15 +75,13 @@ public class Teatro extends Sede {
             throw new IllegalArgumentException("El sector no existe en este teatro");
         }
 
+        ArrayList<Integer> reservados = reservas.get(sector);
+
         for (Integer asiento : asientos) {
             if (asiento == null || asiento < 1 || asiento > asientosPorFila) {
                 return false;
             }
-        }
 
-        ArrayList<Integer> reservados = reservas.get(sector);
-
-        for (Integer asiento : asientos) {
             if (reservados.contains(asiento)) {
                 return false;
             }
@@ -174,5 +172,10 @@ public class Teatro extends Sede {
         if (!reservados.contains(asiento)) {
             reservados.add(asiento);
         }
+    }
+
+    @Override
+    public boolean estaNumerada() {
+        return true;
     }
 }

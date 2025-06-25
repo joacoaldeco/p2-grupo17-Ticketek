@@ -39,12 +39,8 @@ public class Estadio extends Sede {
     }
 
     @Override
-    public boolean verificarDisponibilidad(String sector, ArrayList<Integer> asientos) {
-        if (asientos == null) {
-            throw new IllegalArgumentException("La lista de asientos no puede ser nula");
-        }
-
-        return asientos.size() <= calcularCapacidadRestante();
+    public boolean verificarDisponibilidad(String sector, ArrayList<Integer> ignorar) {
+        return calcularCapacidadRestante() > 0;
     }
 
     @Override
@@ -72,12 +68,8 @@ public class Estadio extends Sede {
     }
 
     @Override
-    public boolean asientosDisponibles(String sector, int[] asientos) {
-        ArrayList<Integer> asientosList = new ArrayList<>();
-        for (int asiento : asientos) {
-            asientosList.add(asiento);
-        }
-        return verificarDisponibilidad(sector, asientosList);
+    public boolean asientosDisponibles(String sector, int[] ignorar) {
+        return calcularCapacidadRestante() > 0;
     }
 
     @Override
@@ -93,7 +85,18 @@ public class Estadio extends Sede {
     }
 
     @Override
-    public void liberarUbicacion(Sector sector, List<Integer> asientos) {
-        return;
+    public void liberarUbicacion(Sector sector, List<Integer> ignorar) {
+        liberarUbicacion(sector);
     }
+
+    @Override
+    public boolean estaNumerada() {
+        return false;
+    }
+
+    @Override
+    public int getCapacidadPorSector(String nombreSector) {
+        return this.getCapacidad();
+    };
+
 }

@@ -2,9 +2,13 @@ package ar.edu.ungs.prog2.ticketek;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.List;
+import java.util.UUID;
 
 public class Entrada implements IEntrada {
+
+    private int generarCodigo() {
+        return Math.abs(UUID.randomUUID().hashCode());
+    }
 
     private Integer codigoEntrada;
     private String nombreEspectaculo;
@@ -12,19 +16,18 @@ public class Entrada implements IEntrada {
     private Sector sector;
     private Double precioPagado;
     private String nombreSede;
-    private List<Integer> asientos;
+    private int asiento;
 
-    public Entrada(Integer codigoEntrada, String nombreEspectaculo, LocalDate fechaFuncion,
+    public Entrada(String nombreEspectaculo, LocalDate fechaFuncion,
             Sector sector, String nombreSede, Double precioPagado) {
-        this(codigoEntrada, nombreEspectaculo, fechaFuncion, sector, nombreSede, precioPagado, null);
+        this(nombreEspectaculo, fechaFuncion, sector, nombreSede, precioPagado, 0);
     }
 
-    public Entrada(Integer codigoEntrada, String nombreEspectaculo, LocalDate fechaFuncion,
-            Sector sector, String nombreSede, Double precioPagado, List<Integer> asientos) {
+    public Entrada(String nombreEspectaculo, LocalDate fechaFuncion,
+            Sector sector, String nombreSede, Double precioPagado, int asiento) {
 
-        if (codigoEntrada == null || codigoEntrada <= 0) {
-            throw new IllegalArgumentException("Código de entrada inválido");
-        }
+        this.codigoEntrada = generarCodigo();
+
         if (nombreEspectaculo == null || nombreEspectaculo.isBlank()) {
             throw new IllegalArgumentException("Nombre de espectáculo inválido");
         }
@@ -41,13 +44,12 @@ public class Entrada implements IEntrada {
             throw new IllegalArgumentException("Precio pagado inválido");
         }
 
-        this.codigoEntrada = codigoEntrada;
         this.nombreEspectaculo = nombreEspectaculo;
         this.fechaFuncion = fechaFuncion;
         this.sector = sector;
         this.nombreSede = nombreSede;
         this.precioPagado = precioPagado;
-        this.asientos = asientos;
+        this.asiento = asiento;
     }
 
     @Override
@@ -101,11 +103,7 @@ public class Entrada implements IEntrada {
         return sector;
     }
 
-    public List<Integer> getAsientos() {
-        return asientos;
-    }
-
-    public boolean tieneAsientosEspecificos() {
-        return asientos != null && !asientos.isEmpty();
+    public int getAsiento() {
+        return asiento;
     }
 }

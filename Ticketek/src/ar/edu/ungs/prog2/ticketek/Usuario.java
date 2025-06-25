@@ -126,11 +126,11 @@ public class Usuario {
         if (funcion == null)
             throw new IllegalArgumentException("Función no encontrada para la entrada");
 
-        if (entrada.tieneAsientosEspecificos()) {
-            funcion.liberarUbicacion(entrada.getSector(), entrada.getAsientos());
-        } else {
-            funcion.liberarUbicacion(entrada.getSector());
-        }
+        // if (entrada.tieneAsientosEspecificos()) {
+        //     funcion.liberarUbicacion(entrada.getSector(), entrada.getAsientos());
+        // } else {
+        //     funcion.liberarUbicacion(entrada.getSector());
+        // }
 
         entradas.remove(codigoEntrada);
         funcion.eliminarEntradaVendida(entrada);

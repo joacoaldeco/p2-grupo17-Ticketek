@@ -11,6 +11,7 @@ public class Funcion {
     private LocalDate fecha;
     private double precioBase;
     private Set<Entrada> entradasVendidas = new HashSet<>();
+    private double recaudacionAcumulada = 0;
 
     public Funcion(Sede sede, LocalDate fecha, double precioBase) {
         if (sede == null) {
@@ -32,15 +33,6 @@ public class Funcion {
 
     public boolean verificarDisponibilidad(String sector, ArrayList<Integer> asientos) {
         return sede.verificarDisponibilidad(sector, asientos);
-    }
-
-    public void registrarEntrada(Entrada entrada) {
-
-        if (entrada == null) {
-            throw new IllegalArgumentException("La entrada no puede ser nula");
-        }
-
-        entradasVendidas.add(entrada);
     }
 
     public double calcularPrecioEntrada(Sector sector) {
@@ -107,6 +99,7 @@ public class Funcion {
         if (entrada == null)
             throw new IllegalArgumentException("La entrada no puede ser nula");
 
+        recaudacionAcumulada += entrada.obtenerPrecioFinal();
         entradasVendidas.add(entrada);
     }
 
@@ -121,6 +114,10 @@ public class Funcion {
             throw new IllegalArgumentException("La entrada no puede ser nula");
         }
         entradasVendidas.remove(entrada);
+    }
+
+    public double recaudacionAcumulada() {
+        return recaudacionAcumulada;
     }
 
 }

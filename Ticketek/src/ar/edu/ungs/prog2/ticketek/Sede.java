@@ -36,6 +36,8 @@ public abstract class Sede {
         return sector != null && sectores.contains(sector);
     }
 
+    public abstract int getCapacidadPorSector(String nombreSector);
+
     public int getCapacidad() {
         return capacidad;
     }
@@ -97,4 +99,6 @@ public abstract class Sede {
     public abstract boolean asientosDisponibles(String sector, int[] asientos);
 
     public abstract void asignarAsiento(String sector, int asiento);
+
+    public abstract boolean estaNumerada();
 }
